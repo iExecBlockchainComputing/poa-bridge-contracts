@@ -3,12 +3,13 @@ import "../../libraries/SafeMath.sol";
 import "../../libraries/Message.sol";
 import "../BasicBridge.sol";
 import "../BasicForeignBridge.sol";
+import "../BorderOption.sol";
 import "../../IBurnableMintableERC677Token.sol";
 import "../../ERC677Receiver.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20Basic.sol";
 
 
-contract ForeignBridgeErcToErc is BasicBridge, BasicForeignBridge {
+contract ForeignBridgeErcToErc is BasicBridge, BasicForeignBridge, BorderOption {
 
     event RelayedMessage(address recipient, uint value, bytes32 transactionHash);
 

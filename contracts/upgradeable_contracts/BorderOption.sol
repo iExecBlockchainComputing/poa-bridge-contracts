@@ -3,14 +3,14 @@ pragma solidity 0.4.24;
 import "./Ownable.sol";
 
 
-contract Border is Ownable {
+contract BorderOption is Ownable {
 
     function borderCitizenListContract() public view returns(address) {
         return addressStorage[keccak256(abi.encodePacked("borderCitizenListContract"))];
     }
 
     function setBorderCitizenListContract(address _borderCitizenListContract) public onlyOwner {
-        require(_borderCitizenListContract == address(0) || isContract(_borderCitizenListContract));
+        require(isContract(_borderCitizenListContract));
         addressStorage[keccak256(abi.encodePacked("borderCitizenListContract"))] = _borderCitizenListContract;
     }
 

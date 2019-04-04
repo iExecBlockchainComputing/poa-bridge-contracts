@@ -9,7 +9,11 @@ const EternalStorageProxy = require('../../../build/contracts/EternalStorageProx
 const BridgeValidators = require('../../../build/contracts/BridgeValidators.json')
 const ForeignBridge = require('../../../build/contracts/ForeignBridgeErcToErc.json')
 
+const BorderCitizenList = require('../../../build/contracts/BorderCitizenList.json')
+
 const VALIDATORS = env.VALIDATORS.split(' ')
+
+const INITIAL_CITIZEN_ACCOUNTS = env.INITIAL_CITIZEN_ACCOUNTS?env.INITIAL_CITIZEN_ACCOUNTS.split(' '):[];
 
 const {
   DEPLOYMENT_ACCOUNT_PRIVATE_KEY,
@@ -22,10 +26,15 @@ const {
   FOREIGN_GAS_PRICE,
   FOREIGN_MAX_AMOUNT_PER_TX,
   HOME_DAILY_LIMIT,
-  HOME_MAX_AMOUNT_PER_TX
+  HOME_MAX_AMOUNT_PER_TX,
+  BORDER_ACTIVE,
+  BORDER_CONTRACT_OWNER
 } = env
 
 const DEPLOYMENT_ACCOUNT_ADDRESS = privateKeyToAddress(DEPLOYMENT_ACCOUNT_PRIVATE_KEY)
+
+const isBorderActive = BORDER_ACTIVE === 'true'
+
 
 async function deployForeign() {
   if (!Web3Utils.isAddress(ERC20_TOKEN_ADDRESS)) {
@@ -176,6 +185,9 @@ async function deployForeign() {
   assert.strictEqual(Web3Utils.hexToNumber(txInitializeBridge.status), 1, 'Transaction Failed')
   foreignNonce++
 
+  let foreignBridgeImplementationOWNER=await foreignBridgeImplementation.methods.owner().call()
+  console.log("foreignBridgeImplementationOWNER="+foreignBridgeImplementationOWNER);
+
   const bridgeOwnershipData = await foreignBridgeStorage.methods
     .transferProxyOwnership(FOREIGN_UPGRADEABLE_ADMIN)
     .encodeABI({ from: DEPLOYMENT_ACCOUNT_ADDRESS })
@@ -188,6 +200,104 @@ async function deployForeign() {
   })
   assert.strictEqual(Web3Utils.hexToNumber(txBridgeOwnershipData.status), 1, 'Transaction Failed')
   foreignNonce++
+
+  if(isBorderActive && BORDER_CONTRACT_OWNER){
+    console.log('\nBorder mode is Active deploy Border Contract:\n')
+
+    console.log('deploying storage for border citizen list')
+    const storageBorderCitizenList = await deployContract(EternalStorageProxy, [], {
+      from: DEPLOYMENT_ACCOUNT_ADDRESS,
+      network: 'foreign',
+      nonce: foreignNonce
+    })
+    foreignNonce++
+    console.log('[Foreign] BorderCitizenList Storage: ', storageBorderCitizenList.options.address)
+
+    console.log('\ndeploying borderCitizenList implementation\n')
+    const borderCitizenListImplementation = await deployContract(BorderCitizenList, [], {
+      from: DEPLOYMENT_ACCOUNT_ADDRESS,
+      network: 'foreign',
+      nonce: foreignNonce
+    })
+    foreignNonce++
+    console.log(
+      '[Foreign] BorderCitizenList  Implementation: ',
+      borderCitizenListImplementation.options.address
+    )
+
+    console.log('\nhooking up eternal storage to BorderCitizenList')
+    const upgradeToBorderCitizenListData = await storageBorderCitizenList.methods
+      .upgradeTo('1', borderCitizenListImplementation.options.address)
+      .encodeABI({ from: DEPLOYMENT_ACCOUNT_ADDRESS })
+    const txUpgradeToBorderCitizenList= await sendRawTxForeign({
+      data: upgradeToBorderCitizenListData,
+      nonce: foreignNonce,
+      to: storageBorderCitizenList.options.address,
+      privateKey: deploymentPrivateKey,
+      url: FOREIGN_RPC_URL
+    })
+    assert.strictEqual(
+      Web3Utils.hexToNumber(txUpgradeToBorderCitizenList.status),
+      1,
+      'Transaction Failed'
+    )
+    foreignNonce++
+
+    console.log('\ninitializing BorderCitizenList with following parameters:\n')
+    console.log(
+      `INITIAL_CITIZEN_ACCOUNTS: ${INITIAL_CITIZEN_ACCOUNTS}, BORDER_CONTRACT_OWNER= ${BORDER_CONTRACT_OWNER}`
+    )
+    borderCitizenListImplementation.options.address = storageBorderCitizenList.options.address
+    const initializeBorderCitizenListData = await borderCitizenListImplementation.methods
+      .initialize(INITIAL_CITIZEN_ACCOUNTS, BORDER_CONTRACT_OWNER)
+      .encodeABI({ from: DEPLOYMENT_ACCOUNT_ADDRESS })
+    const txInitializeBorderCitizenList= await sendRawTxForeign({
+      data: initializeBorderCitizenListData,
+      nonce: foreignNonce,
+      to: borderCitizenListImplementation.options.address,
+      privateKey: deploymentPrivateKey,
+      url: FOREIGN_RPC_URL
+    })
+    assert.strictEqual(Web3Utils.hexToNumber(txInitializeBorderCitizenList.status), 1, 'Transaction Failed')
+    foreignNonce++
+
+    console.log('\nTransferring ownership of BorderCitizenListProxy\n')
+    const storageBorderCitizenListOwnershipData = await storageBorderCitizenList.methods
+      .transferProxyOwnership(FOREIGN_UPGRADEABLE_ADMIN)
+      .encodeABI({ from: DEPLOYMENT_ACCOUNT_ADDRESS })
+    const txBorderCitizenListOwnershipData = await sendRawTxForeign({
+      data: storageBorderCitizenListOwnershipData,
+      nonce: foreignNonce,
+      to: storageBorderCitizenList.options.address,
+      privateKey: deploymentPrivateKey,
+      url: FOREIGN_RPC_URL
+    })
+    assert.strictEqual(
+      Web3Utils.hexToNumber(txBorderCitizenListOwnershipData.status),
+      1,
+      'Transaction Failed'
+    )
+    foreignNonce++
+
+    console.log('\hooking BorderCitizenListContract to foreignBridge:\n')
+    const setBorderCitizenListContractData = await foreignBridgeImplementation.methods
+        .setBorderCitizenListContract(storageBorderCitizenList.options.address) 
+      .encodeABI({ from: DEPLOYMENT_ACCOUNT_ADDRESS })
+    const txSetBorderCitizenListContractData= await sendRawTxForeign({
+      data: setBorderCitizenListContractData,
+      nonce: foreignNonce,
+      to: foreignBridgeStorage.options.address,
+      privateKey: deploymentPrivateKey,
+      url: FOREIGN_RPC_URL
+    })
+    assert.strictEqual(Web3Utils.hexToNumber(txSetBorderCitizenListContractData.status), 1, 'Transaction Failed')
+    foreignNonce++
+
+  }
+  else{
+    console.log('\nBorder mode is NOT Active. Nothing to do.\n')
+  }
+
 
   console.log('\nForeign Deployment Bridge completed\n')
   return {
