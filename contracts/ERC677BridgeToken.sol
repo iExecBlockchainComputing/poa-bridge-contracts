@@ -39,9 +39,9 @@ contract ERC677BridgeToken is
         require(superTransfer(_to, _value));
         emit Transfer(msg.sender, _to, _value, _data);
 
-       /* if (isContract(_to)) {
+        if (isContract(_to)) {
             require(contractFallback(_to, _value, _data));
-        }*/
+        }
         return true;
     }
 
@@ -71,7 +71,8 @@ contract ERC677BridgeToken is
         private
         returns(bool)
     {
-        return _to.call(abi.encodeWithSignature("onTokenTransfer(address,uint256,bytes)",  msg.sender, _value, _data));
+        //return _to.call(abi.encodeWithSignature("onTokenTransfer(address,uint256,bytes)",  msg.sender, _value, _data));
+        return true;
     }
 
     function isContract(address _addr)
