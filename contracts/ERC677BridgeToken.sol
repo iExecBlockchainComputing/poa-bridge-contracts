@@ -39,9 +39,9 @@ contract ERC677BridgeToken is
         require(superTransfer(_to, _value));
         emit Transfer(msg.sender, _to, _value, _data);
 
-        if (isContract(_to)) {
+       /* if (isContract(_to)) {
             require(contractFallback(_to, _value, _data));
-        }
+        }*/
         return true;
     }
 
