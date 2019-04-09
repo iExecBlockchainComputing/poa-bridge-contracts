@@ -71,8 +71,8 @@ contract ERC677BridgeToken is
         private
         returns(bool)
     {
-        //return _to.call(abi.encodeWithSignature("onTokenTransfer(address,uint256,bytes)",  msg.sender, _value, _data));
-        return true;
+        return _to.call(abi.encodeWithSignature("onTokenTransfer(address,uint256,bytes)",  msg.sender, _value, _data));
+        //return true;
     }
 
     function isContract(address _addr)
