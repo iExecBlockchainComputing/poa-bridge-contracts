@@ -15,7 +15,7 @@ contract ERC677Bridge is BasicBridge {
     }
 
     function onTokenTransfer(address _from, uint256 _value, bytes /*_data*/) external returns(bool) {
-        //require(msg.sender == address(erc677token()));
+        require(msg.sender == address(erc677token()));
         //require(withinLimit(_value));
         //setTotalSpentPerDay(getCurrentDay(), totalSpentPerDay(getCurrentDay()).add(_value));
         //erc677token().burn(_value);
