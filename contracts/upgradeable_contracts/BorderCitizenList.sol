@@ -11,8 +11,7 @@ contract BorderCitizenList is EternalStorage, Ownable {
 
     address public constant F_ADDR = 0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF;
 
-    event CitizenAdded (address indexed citizen);
-    event CitizenRemoved (address indexed citizen);
+    event CitizenWhitelisted(address indexed citizen, bool whitelisted);
 
 
     function initialize(
@@ -43,7 +42,7 @@ contract BorderCitizenList is EternalStorage, Ownable {
             }
 
             setCitizenCount(citizenCount().add(1));
-            emit CitizenAdded(_initialCitizen[i]);
+            emit CitizenWhitelisted(_initialCitizen[i],true);
         }
 
         uintStorage[keccak256("deployedAtBlock")] = block.number;
@@ -66,7 +65,7 @@ contract BorderCitizenList is EternalStorage, Ownable {
         setNextCitizen(_citizen, firstCitizen);
         setNextCitizen(F_ADDR, _citizen);
         setCitizenCount(citizenCount().add(1));
-        emit CitizenAdded(_citizen);
+        emit CitizenWhitelisted(_citizen,true);
     }
 
     function addCitizenList(address[] _citizen) external onlyOwner {
@@ -95,7 +94,7 @@ contract BorderCitizenList is EternalStorage, Ownable {
         deleteItemFromAddressStorage("citizenList", _citizen);
         setCitizenCount(citizenCount().sub(1));
 
-        emit CitizenRemoved(_citizen);
+        emit CitizenWhitelisted(_citizen,false);
     }
 
     function removeCitizenList(address[] _citizen) external onlyOwner {

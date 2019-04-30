@@ -83,8 +83,8 @@ contract('BorderCitizenList', async (accounts) => {
       const {logs} = await borderCitizenList.addCitizen(newCitizen, {from: owner}).should.be.fulfilled
       true.should.be.equal(await borderCitizenList.isCitizen(newCitizen))
       '3'.should.be.bignumber.equal(await borderCitizenList.citizenCount())
-      logs[0].event.should.be.equal('CitizenAdded')
-      logs[0].args.should.be.deep.equal({ citizen: newCitizen })
+      logs[0].event.should.be.equal('CitizenWhitelisted')
+      logs[0].args.should.be.deep.equal({ citizen: newCitizen ,whitelisted: true })
     })
 
     it('cannot add already existing citizen', async () => {
@@ -119,8 +119,8 @@ contract('BorderCitizenList', async (accounts) => {
       const {logs} = await borderCitizenList.addCitizenList([newCitizen], {from: owner}).should.be.fulfilled
       true.should.be.equal(await borderCitizenList.isCitizen(newCitizen))
       '3'.should.be.bignumber.equal(await borderCitizenList.citizenCount())
-      logs[0].event.should.be.equal('CitizenAdded')
-      logs[0].args.should.be.deep.equal({ citizen: newCitizen })
+      logs[0].event.should.be.equal('CitizenWhitelisted')
+      logs[0].args.should.be.deep.equal({ citizen: newCitizen ,whitelisted: true })
     })
 
     it('add two Citizen', async () => {
@@ -133,10 +133,11 @@ contract('BorderCitizenList', async (accounts) => {
       true.should.be.equal(await borderCitizenList.isCitizen(newCitizen1))
       true.should.be.equal(await borderCitizenList.isCitizen(newCitizen2))
       '4'.should.be.bignumber.equal(await borderCitizenList.citizenCount())
-      logs[0].event.should.be.equal('CitizenAdded')
-      logs[0].args.should.be.deep.equal({ citizen: newCitizen1 })
-      logs[1].event.should.be.equal('CitizenAdded')
-      logs[1].args.should.be.deep.equal({ citizen: newCitizen2 })
+      logs[0].event.should.be.equal('CitizenWhitelisted')
+      logs[0].args.should.be.deep.equal({ citizen: newCitizen1 ,whitelisted: true })
+      logs[1].event.should.be.equal('CitizenWhitelisted')
+      logs[1].args.should.be.deep.equal({ citizen: newCitizen2 ,whitelisted: true })
+
     })
   })
 
@@ -162,8 +163,8 @@ contract('BorderCitizenList', async (accounts) => {
       true.should.be.equal(await borderCitizenList.isCitizen(citizen[1]))
       true.should.be.equal(await borderCitizenList.isCitizen(citizen[2]))
       '2'.should.be.bignumber.equal(await borderCitizenList.citizenCount())
-      logs[0].event.should.be.equal('CitizenRemoved')
-      logs[0].args.should.be.deep.equal({citizen: toRemove})
+      logs[0].event.should.be.equal('CitizenWhitelisted')
+      logs[0].args.should.be.deep.equal({citizen: toRemove, whitelisted: false })
 
       let finalList=await borderCitizenList.citizenList()
       finalList[0].should.be.equal(secondCitizen)
@@ -181,8 +182,8 @@ contract('BorderCitizenList', async (accounts) => {
       true.should.be.equal(await borderCitizenList.isCitizen(citizen[0]))
       true.should.be.equal(await borderCitizenList.isCitizen(citizen[2]))
       '2'.should.be.bignumber.equal(await borderCitizenList.citizenCount())
-      logs[0].event.should.be.equal('CitizenRemoved')
-      logs[0].args.should.be.deep.equal({citizen: toRemove})
+      logs[0].event.should.be.equal('CitizenWhitelisted')
+      logs[0].args.should.be.deep.equal({citizen: toRemove, whitelisted: false })
 
       let finalList=await borderCitizenList.citizenList()
       finalList[0].should.be.equal(firstCitizen)
@@ -200,9 +201,9 @@ contract('BorderCitizenList', async (accounts) => {
       true.should.be.equal(await borderCitizenList.isCitizen(citizen[0]))
       true.should.be.equal(await borderCitizenList.isCitizen(citizen[1]))
       '2'.should.be.bignumber.equal(await borderCitizenList.citizenCount())
-      logs[0].event.should.be.equal('CitizenRemoved')
-      logs[0].args.should.be.deep.equal({citizen: toRemove})
-
+      logs[0].event.should.be.equal('CitizenWhitelisted')
+      logs[0].args.should.be.deep.equal({citizen: toRemove, whitelisted: false })
+      
       let finalList=await borderCitizenList.citizenList()
       finalList[0].should.be.equal(firstCitizen)
       finalList[1].should.be.equal(secondCitizen)
@@ -242,8 +243,8 @@ contract('BorderCitizenList', async (accounts) => {
       true.should.be.equal(await borderCitizenList.isCitizen(citizen[1]))
       true.should.be.equal(await borderCitizenList.isCitizen(citizen[2]))
       '2'.should.be.bignumber.equal(await borderCitizenList.citizenCount())
-      logs[0].event.should.be.equal('CitizenRemoved')
-      logs[0].args.should.be.deep.equal({citizen: toRemove})
+      logs[0].event.should.be.equal('CitizenWhitelisted')
+      logs[0].args.should.be.deep.equal({citizen: toRemove, whitelisted: false })
 
       let finalList=await borderCitizenList.citizenList()
       finalList[0].should.be.equal(secondCitizen)
@@ -264,10 +265,10 @@ contract('BorderCitizenList', async (accounts) => {
       false.should.be.equal(await borderCitizenList.isCitizen(toRemove2))
       true.should.be.equal(await borderCitizenList.isCitizen(citizen[0]))
        '1'.should.be.bignumber.equal(await borderCitizenList.citizenCount())
-      logs[0].event.should.be.equal('CitizenRemoved')
-      logs[0].args.should.be.deep.equal({citizen: toRemove1})
-      logs[1].event.should.be.equal('CitizenRemoved')
-      logs[1].args.should.be.deep.equal({citizen: toRemove2})
+      logs[0].event.should.be.equal('CitizenWhitelisted')
+      logs[0].args.should.be.deep.equal({citizen: toRemove1, whitelisted: false })
+      logs[1].event.should.be.equal('CitizenWhitelisted')
+      logs[1].args.should.be.deep.equal({citizen: toRemove2, whitelisted: false })
 
       let finalList=await borderCitizenList.citizenList()
       finalList[0].should.be.equal(firstCitizen)
@@ -288,10 +289,10 @@ contract('BorderCitizenList', async (accounts) => {
       false.should.be.equal(await borderCitizenList.isCitizen(toRemove2))
       true.should.be.equal(await borderCitizenList.isCitizen(citizen[1]))
        '1'.should.be.bignumber.equal(await borderCitizenList.citizenCount())
-      logs[0].event.should.be.equal('CitizenRemoved')
-      logs[0].args.should.be.deep.equal({citizen: toRemove1})
-      logs[1].event.should.be.equal('CitizenRemoved')
-      logs[1].args.should.be.deep.equal({citizen: toRemove2})
+      logs[0].event.should.be.equal('CitizenWhitelisted')
+      logs[0].args.should.be.deep.equal({citizen: toRemove1, whitelisted: false })
+      logs[1].event.should.be.equal('CitizenWhitelisted')
+      logs[1].args.should.be.deep.equal({citizen: toRemove2, whitelisted: false })
 
       let finalList=await borderCitizenList.citizenList()
       finalList[0].should.be.equal(secondCitizen)
@@ -365,8 +366,8 @@ contract('BorderCitizenList', async (accounts) => {
       const { logs } = await removeCitizen(accounts[0], { from: owner }).should.be.fulfilled
 
       // Then
-      logs[0].event.should.be.equal('CitizenRemoved')
-      logs[0].args.should.be.deep.equal({ citizen: accounts[0] })
+      logs[0].event.should.be.equal('CitizenWhitelisted')
+      logs[0].args.should.be.deep.equal({ citizen: accounts[0], whitelisted: false })
     })
 
     it(`Removed validator should return zero address on nextValidator`, async () => {
@@ -380,8 +381,8 @@ contract('BorderCitizenList', async (accounts) => {
       const { logs } = await removeCitizen(accounts[0], { from: owner }).should.be.fulfilled
 
       // Then
-      logs[0].event.should.be.equal('CitizenRemoved')
-      logs[0].args.should.be.deep.equal({ citizen: accounts[0] })
+      logs[0].event.should.be.equal('CitizenWhitelisted')
+      logs[0].args.should.be.deep.equal({ citizen: accounts[0], whitelisted: false })
 
       const updatedNextCitizen = await getNextCitizen(accounts[0])
 
@@ -412,8 +413,8 @@ contract('BorderCitizenList', async (accounts) => {
         ).should.be.fulfilled
 
         // Then
-        logs[0].event.should.be.equal('CitizenRemoved')
-        logs[0].args.should.be.deep.equal({ citizen })
+        logs[0].event.should.be.equal('CitizenWhitelisted')
+        logs[0].args.should.be.deep.equal({ citizen:citizen , whitelisted: false })
       })
     })
   })
