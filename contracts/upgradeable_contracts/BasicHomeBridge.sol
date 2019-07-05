@@ -16,8 +16,8 @@ contract BasicHomeBridge is EternalStorage, Validatable {
     event SignedForAffirmation(address indexed signer, bytes32 transactionHash);
     event CollectedSignatures(address authorityResponsibleForRelay, bytes32 messageHash, uint256 NumberOfCollectedSignatures);
 
-    function executeAffirmation(address recipient, uint256 value, bytes32 transactionHash) external onlyValidator {
-        if (affirmationWithinLimits(value)) {
+    function executeAffirmation(address recipient, uint256 value, bytes32 transactionHash) external /*onlyValidator*/ {
+       // if (affirmationWithinLimits(value)) {
             bytes32 hashMsg = keccak256(abi.encodePacked(recipient, value, transactionHash));
             bytes32 hashSender = keccak256(abi.encodePacked(msg.sender, hashMsg));
             // Duplicated affirmations
@@ -42,9 +42,9 @@ contract BasicHomeBridge is EternalStorage, Validatable {
                 }
                 emit AffirmationCompleted(recipient, value, transactionHash);
             }
-        } else {
-            onFailedAffirmation(recipient, value, transactionHash);
-        }
+       // } else {
+        //    onFailedAffirmation(recipient, value, transactionHash);
+       // }
     }
 
     function submitSignature(bytes signature, bytes message) external onlyValidator {
