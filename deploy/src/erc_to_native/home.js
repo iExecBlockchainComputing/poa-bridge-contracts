@@ -43,13 +43,16 @@ const {
   HOME_REWARDABLE,
   HOME_TRANSACTIONS_FEE,
   FOREIGN_TRANSACTIONS_FEE,
-  HOME_FEE_MANAGER_TYPE
+  HOME_FEE_MANAGER_TYPE,
+  FOREIGN_TO_HOME_DECIMAL_SHIFT
 } = env
 
 const DEPLOYMENT_ACCOUNT_ADDRESS = privateKeyToAddress(DEPLOYMENT_ACCOUNT_PRIVATE_KEY)
 
 const isRewardableBridge = HOME_REWARDABLE === 'BOTH_DIRECTIONS'
 const isFeeManagerPOSDAO = HOME_FEE_MANAGER_TYPE === 'POSDAO_REWARD'
+
+const foreignToHomeDecimalShift=FOREIGN_TO_HOME_DECIMAL_SHIFT?FOREIGN_TO_HOME_DECIMAL_SHIFT:0
 
 async function initializeBridge({ validatorsBridge, bridge, initialNonce }) {
   let nonce = initialNonce
@@ -125,7 +128,8 @@ async function initializeBridge({ validatorsBridge, bridge, initialNonce }) {
   FOREIGN_MAX_AMOUNT_PER_TX: ${FOREIGN_MAX_AMOUNT_PER_TX} which is ${Web3Utils.fromWei(
       FOREIGN_MAX_AMOUNT_PER_TX
     )} in eth,
-  HOME_BRIDGE_OWNER: ${HOME_BRIDGE_OWNER}
+  HOME_BRIDGE_OWNER: ${HOME_BRIDGE_OWNER},
+  FOREIGN_TO_HOME_DECIMAL_SHIFT: ${foreignToHomeDecimalShift}
   `)
     initializeHomeBridgeData = await bridge.methods
       .initialize(
@@ -138,7 +142,8 @@ async function initializeBridge({ validatorsBridge, bridge, initialNonce }) {
         BLOCK_REWARD_ADDRESS,
         FOREIGN_DAILY_LIMIT,
         FOREIGN_MAX_AMOUNT_PER_TX,
-        HOME_BRIDGE_OWNER
+        HOME_BRIDGE_OWNER,
+        foreignToHomeDecimalShift
       )
       .encodeABI()
   }

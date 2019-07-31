@@ -24,6 +24,7 @@ contract BasicBridge is Initializable, Validatable, Ownable, Upgradeable, Claima
     bytes32 internal constant DAILY_LIMIT = keccak256(abi.encodePacked("dailyLimit"));
     bytes32 internal constant EXECUTION_MAX_PER_TX = keccak256(abi.encodePacked("executionMaxPerTx"));
     bytes32 internal constant EXECUTION_DAILY_LIMIT = keccak256(abi.encodePacked("executionDailyLimit"));
+    bytes32 internal constant DECIMALS_SHIFT = keccak256(abi.encodePacked("decimalsShift"));
 
     function getBridgeInterfacesVersion() external pure returns (uint64 major, uint64 minor, uint64 patch) {
         return (2, 3, 0);
@@ -125,6 +126,14 @@ contract BasicBridge is Initializable, Validatable, Ownable, Upgradeable, Claima
     function withinExecutionLimit(uint256 _amount) public view returns (bool) {
         uint256 nextLimit = totalExecutedPerDay(getCurrentDay()).add(_amount);
         return executionDailyLimit() >= nextLimit && _amount <= executionMaxPerTx();
+    }
+
+    function decimalsShift() public view returns (uint256) {
+        return uintStorage[DECIMALS_SHIFT];
+    }
+    
+    function setDecimalsShift(uint256 _decimalsShift) external onlyOwner {
+        uintStorage[DECIMALS_SHIFT] = _decimalsShift;
     }
 
     function claimTokens(address _token, address _to) public onlyIfUpgradeabilityOwner validAddress(_to) {

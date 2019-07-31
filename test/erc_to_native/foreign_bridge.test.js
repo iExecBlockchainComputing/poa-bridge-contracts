@@ -16,6 +16,7 @@ const homeDailyLimit = oneEther
 const homeMaxPerTx = halfEther
 const maxPerTx = halfEther
 const ZERO = toBN(0)
+const decimalsShiftZero = 0
 
 contract('ForeignBridge_ERC20_to_Native', async accounts => {
   let validatorContract
@@ -49,7 +50,8 @@ contract('ForeignBridge_ERC20_to_Native', async accounts => {
           maxPerTx,
           homeDailyLimit,
           homeMaxPerTx,
-          owner
+          owner,
+          decimalsShiftZero
         )
         .should.be.rejectedWith(ERROR_MSG)
       await foreignBridge
@@ -61,7 +63,8 @@ contract('ForeignBridge_ERC20_to_Native', async accounts => {
           maxPerTx,
           homeDailyLimit,
           homeMaxPerTx,
-          owner
+          owner,
+          decimalsShiftZero
         )
         .should.be.rejectedWith(ERROR_MSG)
       await foreignBridge
@@ -73,7 +76,8 @@ contract('ForeignBridge_ERC20_to_Native', async accounts => {
           maxPerTx,
           homeDailyLimit,
           homeMaxPerTx,
-          owner
+          owner,
+          decimalsShiftZero
         )
         .should.be.rejectedWith(ERROR_MSG)
       await foreignBridge
@@ -85,7 +89,8 @@ contract('ForeignBridge_ERC20_to_Native', async accounts => {
           maxPerTx,
           homeDailyLimit,
           homeMaxPerTx,
-          owner
+          owner,
+          decimalsShiftZero
         )
         .should.be.rejectedWith(ERROR_MSG)
       await foreignBridge
@@ -97,7 +102,8 @@ contract('ForeignBridge_ERC20_to_Native', async accounts => {
           maxPerTx,
           homeDailyLimit,
           homeMaxPerTx,
-          owner
+          owner,
+          decimalsShiftZero
         )
         .should.be.rejectedWith(ERROR_MSG)
       await foreignBridge
@@ -109,7 +115,8 @@ contract('ForeignBridge_ERC20_to_Native', async accounts => {
           maxPerTx,
           homeDailyLimit,
           homeMaxPerTx,
-          owner
+          owner,
+          decimalsShiftZero
         )
         .should.be.rejectedWith(ERROR_MSG)
       await foreignBridge
@@ -121,7 +128,8 @@ contract('ForeignBridge_ERC20_to_Native', async accounts => {
           maxPerTx,
           halfEther,
           homeMaxPerTx,
-          owner
+          owner,
+          decimalsShiftZero
         )
         .should.be.rejectedWith(ERROR_MSG)
 
@@ -133,7 +141,8 @@ contract('ForeignBridge_ERC20_to_Native', async accounts => {
         maxPerTx,
         homeDailyLimit,
         homeMaxPerTx,
-        owner
+        owner,
+        decimalsShiftZero
       )
 
       expect(await foreignBridge.erc20token()).to.be.equal(token.address)
@@ -143,6 +152,7 @@ contract('ForeignBridge_ERC20_to_Native', async accounts => {
       expect(await foreignBridge.requiredBlockConfirmations()).to.be.bignumber.equal(
         requireBlockConfirmations.toString()
       )
+      expect(await foreignBridge.decimalsShift()).to.be.bignumber.equal('0')
       expect(await foreignBridge.gasPrice()).to.be.bignumber.equal(gasPrice)
       const bridgeMode = '0x18762d46' // 4 bytes of keccak256('erc-to-native-core')
       expect(await foreignBridge.getBridgeMode()).to.be.equal(bridgeMode)
@@ -173,7 +183,8 @@ contract('ForeignBridge_ERC20_to_Native', async accounts => {
         maxPerTx,
         homeDailyLimit,
         homeMaxPerTx,
-        owner
+        owner,
+        decimalsShiftZero
       )
       await token.mint(foreignBridge.address, value)
     })
@@ -319,6 +330,7 @@ contract('ForeignBridge_ERC20_to_Native', async accounts => {
         homeDailyLimit,
         homeMaxPerTx,
         owner,
+        decimalsShiftZero,
         { from: ownerOfValidatorContract }
       )
       await token.mint(foreignBridgeWithMultiSignatures.address, value)
@@ -385,7 +397,8 @@ contract('ForeignBridge_ERC20_to_Native', async accounts => {
         maxPerTx,
         homeDailyLimit,
         homeMaxPerTx,
-        owner
+        owner,
+        decimalsShiftZero
       )
       await erc20Token.mint(foreignBridgeWithThreeSigs.address, value)
 
@@ -447,7 +460,8 @@ contract('ForeignBridge_ERC20_to_Native', async accounts => {
         maxPerTx,
         homeDailyLimit,
         homeMaxPerTx,
-        owner
+        owner,
+        decimalsShiftZero
       )
 
       // Deploy V2
@@ -464,7 +478,17 @@ contract('ForeignBridge_ERC20_to_Native', async accounts => {
       const storageProxy = await EternalStorageProxy.new().should.be.fulfilled
       const foreignBridge = await ForeignBridge.new()
       const data = foreignBridge.contract.methods
-        .initialize(validatorsAddress, tokenAddress, requireBlockConfirmations, gasPrice, '2', '3', '2', owner)
+        .initialize(
+          validatorsAddress,
+          tokenAddress,
+          requireBlockConfirmations,
+          gasPrice,
+          '2',
+          '3',
+          '2',
+          owner,
+          decimalsShiftZero
+        )
         .encodeABI()
 
       await storageProxy.upgradeToAndCall('1', foreignBridge.address, data).should.be.fulfilled
@@ -492,7 +516,8 @@ contract('ForeignBridge_ERC20_to_Native', async accounts => {
         maxPerTx,
         homeDailyLimit,
         homeMaxPerTx,
-        owner
+        owner,
+        decimalsShiftZero
       )
       const tokenSecond = await ERC677BridgeToken.new('Roman Token', 'RST', 18)
 
