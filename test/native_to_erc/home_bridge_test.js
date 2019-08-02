@@ -125,7 +125,8 @@ contract('HomeBridge', async accounts => {
         requireBlockConfirmations,
         foreignDailyLimit,
         foreignMaxPerTx,
-        owner
+        owner,
+        decimalsShiftZero
       ).should.be.fulfilled
 
       expect(await homeContract.gasPrice()).to.be.bignumber.equal(gasPrice)
@@ -152,7 +153,8 @@ contract('HomeBridge', async accounts => {
         requireBlockConfirmations,
         foreignDailyLimit,
         foreignMaxPerTx,
-        owner
+        owner,
+        decimalsShiftZero
       ).should.be.fulfilled
 
       expect(await homeContract.requiredBlockConfirmations()).to.be.bignumber.equal(toBN(requireBlockConfirmations))
@@ -268,7 +270,8 @@ contract('HomeBridge', async accounts => {
         requireBlockConfirmations,
         foreignDailyLimit,
         foreignMaxPerTx,
-        owner
+        owner,
+        decimalsShiftZero
       ).should.be.fulfilled
 
       expect(await homeContract.owner()).to.be.equal(owner)
@@ -1329,7 +1332,8 @@ contract('HomeBridge', async accounts => {
         owner,
         feeManager.address,
         homeFee,
-        foreignFee
+        foreignFee,
+        decimalsShiftZero
       ).should.be.fulfilled
 
       // Then
