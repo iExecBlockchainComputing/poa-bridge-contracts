@@ -22,6 +22,7 @@ const halfEther = ether('0.5')
 const foreignDailyLimit = oneEther
 const foreignMaxPerTx = halfEther
 const ZERO = toBN(0)
+const decimalsShiftZero = 0
 const markedAsProcessed = toBN(2)
   .pow(toBN(255))
   .add(toBN(1))
@@ -48,6 +49,7 @@ contract('HomeBridge_ERC20_to_ERC20', async accounts => {
       expect(await homeContract.deployedAtBlock()).to.be.bignumber.equal(ZERO)
       expect(await homeContract.dailyLimit()).to.be.bignumber.equal(ZERO)
       expect(await homeContract.maxPerTx()).to.be.bignumber.equal(ZERO)
+      expect(await homeContract.decimalsShift()).to.be.bignumber.equal(ZERO)
       expect(await homeContract.isInitialized()).to.be.equal(false)
 
       const { logs } = await homeContract.initialize(
@@ -60,7 +62,8 @@ contract('HomeBridge_ERC20_to_ERC20', async accounts => {
         token.address,
         foreignDailyLimit,
         foreignMaxPerTx,
-        owner
+        owner,
+        '9'
       ).should.be.fulfilled
 
       expect(await homeContract.isInitialized()).to.be.equal(true)
@@ -69,6 +72,7 @@ contract('HomeBridge_ERC20_to_ERC20', async accounts => {
       expect(await homeContract.dailyLimit()).to.be.bignumber.equal('3')
       expect(await homeContract.maxPerTx()).to.be.bignumber.equal('2')
       expect(await homeContract.minPerTx()).to.be.bignumber.equal('1')
+      expect(await homeContract.decimalsShift()).to.be.bignumber.equal('9')
       const bridgeMode = '0xba4690f5' // 4 bytes of keccak256('erc-to-erc-core')
       expect(await homeContract.getBridgeMode()).to.be.equal(bridgeMode)
       const { major, minor, patch } = await homeContract.getBridgeInterfacesVersion()
@@ -97,7 +101,8 @@ contract('HomeBridge_ERC20_to_ERC20', async accounts => {
           token.address,
           foreignDailyLimit,
           foreignMaxPerTx,
-          owner
+          owner,
+          decimalsShiftZero
         )
         .should.be.rejectedWith(ERROR_MSG)
       await homeContract
@@ -111,7 +116,8 @@ contract('HomeBridge_ERC20_to_ERC20', async accounts => {
           token.address,
           foreignDailyLimit,
           foreignMaxPerTx,
-          owner
+          owner,
+          decimalsShiftZero
         )
         .should.be.rejectedWith(ERROR_MSG)
 
@@ -131,7 +137,8 @@ contract('HomeBridge_ERC20_to_ERC20', async accounts => {
           token.address,
           '3',
           '2',
-          owner
+          owner,
+          decimalsShiftZero
         )
         .encodeABI()
       await storageProxy.upgradeToAndCall('1', homeContract.address, data).should.be.fulfilled
@@ -158,7 +165,8 @@ contract('HomeBridge_ERC20_to_ERC20', async accounts => {
           token.address,
           foreignDailyLimit,
           foreignMaxPerTx,
-          owner
+          owner,
+          decimalsShiftZero
         )
         .should.be.rejectedWith(ERROR_MSG)
       await homeContract
@@ -172,7 +180,8 @@ contract('HomeBridge_ERC20_to_ERC20', async accounts => {
           token.address,
           foreignDailyLimit,
           foreignMaxPerTx,
-          owner
+          owner,
+          decimalsShiftZero
         )
         .should.be.rejectedWith(ERROR_MSG)
       await homeContract
@@ -186,7 +195,8 @@ contract('HomeBridge_ERC20_to_ERC20', async accounts => {
           token.address,
           foreignDailyLimit,
           foreignMaxPerTx,
-          owner
+          owner,
+          decimalsShiftZero
         )
         .should.be.rejectedWith(ERROR_MSG)
       await homeContract
@@ -200,7 +210,8 @@ contract('HomeBridge_ERC20_to_ERC20', async accounts => {
           ZERO_ADDRESS,
           foreignDailyLimit,
           foreignMaxPerTx,
-          owner
+          owner,
+          decimalsShiftZero
         )
         .should.be.rejectedWith(ERROR_MSG)
       await homeContract
@@ -214,7 +225,8 @@ contract('HomeBridge_ERC20_to_ERC20', async accounts => {
           owner,
           foreignDailyLimit,
           foreignMaxPerTx,
-          owner
+          owner,
+          decimalsShiftZero
         )
         .should.be.rejectedWith(ERROR_MSG)
       await homeContract
@@ -228,7 +240,8 @@ contract('HomeBridge_ERC20_to_ERC20', async accounts => {
           token.address,
           halfEther,
           oneEther,
-          owner
+          owner,
+          decimalsShiftZero
         )
         .should.be.rejectedWith(ERROR_MSG)
       await homeContract.initialize(
@@ -241,7 +254,8 @@ contract('HomeBridge_ERC20_to_ERC20', async accounts => {
         token.address,
         foreignDailyLimit,
         foreignMaxPerTx,
-        owner
+        owner,
+        decimalsShiftZero
       ).should.be.fulfilled
 
       expect(await homeContract.isInitialized()).to.be.equal(true)
@@ -261,7 +275,8 @@ contract('HomeBridge_ERC20_to_ERC20', async accounts => {
         token.address,
         foreignDailyLimit,
         foreignMaxPerTx,
-        owner
+        owner,
+        decimalsShiftZero
       ).should.be.fulfilled
 
       // Then
@@ -283,7 +298,8 @@ contract('HomeBridge_ERC20_to_ERC20', async accounts => {
         token.address,
         foreignDailyLimit,
         foreignMaxPerTx,
-        owner
+        owner,
+        decimalsShiftZero
       )
     })
     it('reverts', async () => {
@@ -311,7 +327,8 @@ contract('HomeBridge_ERC20_to_ERC20', async accounts => {
         token.address,
         foreignDailyLimit,
         foreignMaxPerTx,
-        owner
+        owner,
+        decimalsShiftZero
       )
     })
     it('#setMaxPerTx allows to set only to owner and cannot be more than daily limit', async () => {
@@ -344,7 +361,8 @@ contract('HomeBridge_ERC20_to_ERC20', async accounts => {
         token.address,
         foreignDailyLimit,
         foreignMaxPerTx,
-        owner
+        owner,
+        decimalsShiftZero
       )
       await token.transferOwnership(homeBridge.address)
     })
@@ -431,7 +449,8 @@ contract('HomeBridge_ERC20_to_ERC20', async accounts => {
         token2sig.address,
         foreignDailyLimit,
         foreignMaxPerTx,
-        owner
+        owner,
+        decimalsShiftZero
       )
       await token2sig.transferOwnership(homeBridgeWithTwoSigs.address)
       const recipient = accounts[5]
@@ -518,7 +537,8 @@ contract('HomeBridge_ERC20_to_ERC20', async accounts => {
         token2sig.address,
         foreignDailyLimit,
         foreignMaxPerTx,
-        owner
+        owner,
+        decimalsShiftZero
       )
       await token2sig.transferOwnership(homeBridgeWithTwoSigs.address)
       const recipient = accounts[5]
@@ -562,7 +582,8 @@ contract('HomeBridge_ERC20_to_ERC20', async accounts => {
         token.address,
         foreignDailyLimit,
         foreignMaxPerTx,
-        owner
+        owner,
+        decimalsShiftZero
       )
       await token.transferOwnership(homeBridgeWithThreeSigs.address)
 
@@ -720,7 +741,8 @@ contract('HomeBridge_ERC20_to_ERC20', async accounts => {
         token2sig.address,
         foreignDailyLimit,
         foreignMaxPerTx,
-        owner
+        owner,
+        decimalsShiftZero
       )
       await token2sig.transferOwnership(homeBridgeWithTwoSigs.address)
     })
@@ -792,7 +814,8 @@ contract('HomeBridge_ERC20_to_ERC20', async accounts => {
         token.address,
         foreignDailyLimit,
         foreignMaxPerTx,
-        owner
+        owner,
+        decimalsShiftZero
       )
 
       const value = ether('0.5')
@@ -901,7 +924,8 @@ contract('HomeBridge_ERC20_to_ERC20', async accounts => {
         token.address,
         foreignDailyLimit,
         foreignMaxPerTx,
-        owner
+        owner,
+        decimalsShiftZero
       ).should.be.fulfilled
     })
     it('Should revert if value to unlock is bigger than max per transaction', async () => {
@@ -1175,7 +1199,8 @@ contract('HomeBridge_ERC20_to_ERC20', async accounts => {
         token.address,
         foreignDailyLimit,
         foreignMaxPerTx,
-        owner
+        owner,
+        decimalsShiftZero
       ).should.be.fulfilled
 
       await token.transferOwnership(homeBridge.address).should.be.fulfilled
@@ -1294,6 +1319,9 @@ contract('HomeBridge_ERC20_to_ERC20', async accounts => {
       expect(await homeBridge.dailyLimit()).to.be.bignumber.equal(oneEther)
       expect(await homeBridge.maxPerTx()).to.be.bignumber.equal(halfEther)
       expect(await homeBridge.minPerTx()).to.be.bignumber.equal(minPerTx)
+      expect(await homeBridge.decimalsShift()).to.be.bignumber.equal('0')
+      await homeBridge.setDecimalsShift('9').should.be.fulfilled
+      expect(await homeBridge.decimalsShift()).to.be.bignumber.equal('9')
       const bridgeMode = '0xba4690f5' // 4 bytes of keccak256('erc-to-erc-core')
       expect(await homeBridge.getBridgeMode()).to.be.equal(bridgeMode)
       const { major, minor, patch } = await homeBridge.getBridgeInterfacesVersion()
@@ -1502,7 +1530,8 @@ contract('HomeBridge_ERC20_to_ERC20', async accounts => {
         token.address,
         foreignDailyLimit,
         foreignMaxPerTx,
-        owner
+        owner,
+        decimalsShiftZero
       ).should.be.fulfilled
       const value = halfEther
       await token.mint(user, value, { from: owner }).should.be.fulfilled

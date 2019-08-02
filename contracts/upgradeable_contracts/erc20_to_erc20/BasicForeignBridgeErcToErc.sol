@@ -12,7 +12,8 @@ contract BasicForeignBridgeErcToErc is BasicForeignBridge {
         uint256 _maxPerTx,
         uint256 _homeDailyLimit,
         uint256 _homeMaxPerTx,
-        address _owner
+        address _owner,
+        uint256 _decimalsShift
     ) internal {
         require(!isInitialized());
         require(AddressUtils.isContract(_validatorContract));
@@ -29,6 +30,7 @@ contract BasicForeignBridgeErcToErc is BasicForeignBridge {
         uintStorage[MAX_PER_TX] = _maxPerTx;
         uintStorage[EXECUTION_DAILY_LIMIT] = _homeDailyLimit;
         uintStorage[EXECUTION_MAX_PER_TX] = _homeMaxPerTx;
+        uintStorage[DECIMALS_SHIFT] = _decimalsShift;
         setOwner(_owner);
         setInitialize();
 

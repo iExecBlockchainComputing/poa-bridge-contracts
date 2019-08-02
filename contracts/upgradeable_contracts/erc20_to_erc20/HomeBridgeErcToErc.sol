@@ -27,7 +27,8 @@ contract HomeBridgeErcToErc is
         address _erc677token,
         uint256 _foreignDailyLimit,
         uint256 _foreignMaxPerTx,
-        address _owner
+        address _owner,
+        uint256 _decimalsShift
     ) external returns (bool) {
         _initialize(
             _validatorContract,
@@ -39,7 +40,8 @@ contract HomeBridgeErcToErc is
             _erc677token,
             _foreignDailyLimit,
             _foreignMaxPerTx,
-            _owner
+            _owner,
+            _decimalsShift
         );
         setInitialize();
 
@@ -106,7 +108,8 @@ contract HomeBridgeErcToErc is
             _erc677token,
             _foreignDailyLimit,
             _foreignMaxPerTx,
-            _owner
+            _owner,
+            0
         );
         require(AddressUtils.isContract(_feeManager));
         addressStorage[FEE_MANAGER_CONTRACT] = _feeManager;
@@ -124,7 +127,8 @@ contract HomeBridgeErcToErc is
         address _erc677token,
         uint256 _foreignDailyLimit,
         uint256 _foreignMaxPerTx,
-        address _owner
+        address _owner,
+        uint256 _decimalsShift
     ) internal {
         require(!isInitialized());
         require(AddressUtils.isContract(_validatorContract));
@@ -141,6 +145,7 @@ contract HomeBridgeErcToErc is
         uintStorage[REQUIRED_BLOCK_CONFIRMATIONS] = _requiredBlockConfirmations;
         uintStorage[EXECUTION_DAILY_LIMIT] = _foreignDailyLimit;
         uintStorage[EXECUTION_MAX_PER_TX] = _foreignMaxPerTx;
+        uintStorage[DECIMALS_SHIFT] = _decimalsShift;
         setOwner(_owner);
         setErc677token(_erc677token);
 

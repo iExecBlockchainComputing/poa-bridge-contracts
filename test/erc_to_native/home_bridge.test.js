@@ -46,6 +46,7 @@ contract('HomeBridge_ERC20_to_Native', async accounts => {
       expect(await homeContract.deployedAtBlock()).to.be.bignumber.equal(ZERO)
       expect(await homeContract.dailyLimit()).to.be.bignumber.equal(ZERO)
       expect(await homeContract.maxPerTx()).to.be.bignumber.equal(ZERO)
+      expect(await homeContract.decimalsShift()).to.be.bignumber.equal(ZERO)
       expect(await homeContract.isInitialized()).to.be.equal(false)
       expect(await homeContract.blockRewardContract()).to.be.equal(ZERO_ADDRESS)
 
@@ -60,7 +61,7 @@ contract('HomeBridge_ERC20_to_Native', async accounts => {
         foreignDailyLimit,
         foreignMaxPerTx,
         owner,
-        decimalsShiftZero
+        '9'
       ).should.be.fulfilled
 
       expect(await homeContract.isInitialized()).to.be.equal(true)
@@ -69,7 +70,7 @@ contract('HomeBridge_ERC20_to_Native', async accounts => {
       expect(await homeContract.dailyLimit()).to.be.bignumber.equal('3')
       expect(await homeContract.maxPerTx()).to.be.bignumber.equal('2')
       expect(await homeContract.minPerTx()).to.be.bignumber.equal('1')
-      expect(await homeContract.decimalsShift()).to.be.bignumber.equal('0')
+      expect(await homeContract.decimalsShift()).to.be.bignumber.equal('9')
       expect(await homeContract.blockRewardContract()).to.be.equal(blockRewardContract.address)
       expect(await homeContract.gasPrice()).to.be.bignumber.equal(gasPrice)
       const bridgeMode = '0x18762d46' // 4 bytes of keccak256('erc-to-native-core')
@@ -360,7 +361,7 @@ contract('HomeBridge_ERC20_to_Native', async accounts => {
         feeManager.address,
         homeFee,
         foreignFee,
-        '2'
+        '9'
       ).should.be.fulfilled
 
       expect(await homeContract.isInitialized()).to.be.equal(true)
@@ -369,7 +370,7 @@ contract('HomeBridge_ERC20_to_Native', async accounts => {
       expect(await homeContract.dailyLimit()).to.be.bignumber.equal('3')
       expect(await homeContract.maxPerTx()).to.be.bignumber.equal('2')
       expect(await homeContract.minPerTx()).to.be.bignumber.equal('1')
-      expect(await homeContract.decimalsShift()).to.be.bignumber.equal('2')
+      expect(await homeContract.decimalsShift()).to.be.bignumber.equal('9')
       expect(await homeContract.blockRewardContract()).to.be.equal(blockRewardContract.address)
       expect(await homeContract.gasPrice()).to.be.bignumber.equal(gasPrice)
       const bridgeMode = '0x18762d46' // 4 bytes of keccak256('erc-to-native-core')

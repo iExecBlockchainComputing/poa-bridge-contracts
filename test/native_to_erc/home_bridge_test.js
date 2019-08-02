@@ -21,6 +21,7 @@ const halfEther = ether('0.5')
 const foreignDailyLimit = oneEther
 const foreignMaxPerTx = halfEther
 const ZERO = toBN(0)
+const decimalsShiftZero = 0
 
 contract('HomeBridge', async accounts => {
   let homeContract
@@ -43,6 +44,7 @@ contract('HomeBridge', async accounts => {
       expect(await homeContract.deployedAtBlock()).to.be.bignumber.equal(ZERO)
       expect(await homeContract.dailyLimit()).to.be.bignumber.equal(ZERO)
       expect(await homeContract.maxPerTx()).to.be.bignumber.equal(ZERO)
+      expect(await homeContract.decimalsShift()).to.be.bignumber.equal(ZERO)
       expect(await homeContract.isInitialized()).to.be.equal(false)
 
       const { logs } = await homeContract.initialize(
@@ -54,7 +56,8 @@ contract('HomeBridge', async accounts => {
         requireBlockConfirmations,
         foreignDailyLimit,
         foreignMaxPerTx,
-        owner
+        owner,
+        '9'
       ).should.be.fulfilled
 
       expect(await homeContract.isInitialized()).to.be.equal(true)
@@ -64,6 +67,7 @@ contract('HomeBridge', async accounts => {
       expect(await homeContract.maxPerTx()).to.be.bignumber.equal('2')
       expect(await homeContract.minPerTx()).to.be.bignumber.equal('1')
       expect(await homeContract.gasPrice()).to.be.bignumber.equal(gasPrice)
+      expect(await homeContract.decimalsShift()).to.be.bignumber.equal('9')
       const bridgeMode = '0x92a8d7fe' // 4 bytes of keccak256('native-to-erc-core')
       expect(await homeContract.getBridgeMode()).to.be.equal(bridgeMode)
       const { major, minor, patch } = await homeContract.getBridgeInterfacesVersion()
@@ -90,7 +94,8 @@ contract('HomeBridge', async accounts => {
           requireBlockConfirmations,
           foreignDailyLimit,
           foreignMaxPerTx,
-          owner
+          owner,
+          decimalsShiftZero
         )
         .should.be.rejectedWith(ERROR_MSG)
       await homeContract
@@ -103,7 +108,8 @@ contract('HomeBridge', async accounts => {
           requireBlockConfirmations,
           foreignDailyLimit,
           foreignMaxPerTx,
-          owner
+          owner,
+          decimalsShiftZero
         )
         .should.be.rejectedWith(ERROR_MSG)
       false.should.be.equal(await homeContract.isInitialized())
@@ -169,7 +175,18 @@ contract('HomeBridge', async accounts => {
     it('can be deployed via upgradeToAndCall', async () => {
       const storageProxy = await EternalStorageProxy.new().should.be.fulfilled
       const data = homeContract.contract.methods
-        .initialize(validatorContract.address, '3', '2', '1', gasPrice, requireBlockConfirmations, '3', '2', owner)
+        .initialize(
+          validatorContract.address,
+          '3',
+          '2',
+          '1',
+          gasPrice,
+          requireBlockConfirmations,
+          '3',
+          '2',
+          owner,
+          decimalsShiftZero
+        )
         .encodeABI()
       await storageProxy.upgradeTo('1', accounts[5]).should.be.rejectedWith(ERROR_MSG)
       await storageProxy.upgradeToAndCall('1', accounts[5], data).should.be.rejectedWith(ERROR_MSG)
@@ -185,7 +202,18 @@ contract('HomeBridge', async accounts => {
     it('cant initialize with invalid arguments', async () => {
       false.should.be.equal(await homeContract.isInitialized())
       await homeContract
-        .initialize(validatorContract.address, '3', '2', '1', gasPrice, 0, foreignDailyLimit, foreignMaxPerTx, owner)
+        .initialize(
+          validatorContract.address,
+          '3',
+          '2',
+          '1',
+          gasPrice,
+          0,
+          foreignDailyLimit,
+          foreignMaxPerTx,
+          owner,
+          decimalsShiftZero
+        )
         .should.be.rejectedWith(ERROR_MSG)
       await homeContract
         .initialize(
@@ -197,7 +225,8 @@ contract('HomeBridge', async accounts => {
           requireBlockConfirmations,
           foreignDailyLimit,
           foreignMaxPerTx,
-          owner
+          owner,
+          decimalsShiftZero
         )
         .should.be.rejectedWith(ERROR_MSG)
       await homeContract
@@ -210,7 +239,8 @@ contract('HomeBridge', async accounts => {
           requireBlockConfirmations,
           foreignDailyLimit,
           foreignMaxPerTx,
-          owner
+          owner,
+          decimalsShiftZero
         )
         .should.be.rejectedWith(ERROR_MSG)
       await homeContract.initialize(
@@ -222,7 +252,8 @@ contract('HomeBridge', async accounts => {
         requireBlockConfirmations,
         foreignDailyLimit,
         foreignMaxPerTx,
-        owner
+        owner,
+        decimalsShiftZero
       ).should.be.fulfilled
       true.should.be.equal(await homeContract.isInitialized())
     })
@@ -256,7 +287,18 @@ contract('HomeBridge', async accounts => {
     it('can transfer proxyOwnership', async () => {
       const storageProxy = await EternalStorageProxy.new().should.be.fulfilled
       const data = homeContract.contract.methods
-        .initialize(validatorContract.address, '3', '2', '1', gasPrice, requireBlockConfirmations, '3', '2', owner)
+        .initialize(
+          validatorContract.address,
+          '3',
+          '2',
+          '1',
+          gasPrice,
+          requireBlockConfirmations,
+          '3',
+          '2',
+          owner,
+          decimalsShiftZero
+        )
         .encodeABI()
       await storageProxy.upgradeToAndCall('1', homeContract.address, data).should.be.fulfilled
       await storageProxy.transferProxyOwnership(owner).should.be.fulfilled
@@ -277,7 +319,8 @@ contract('HomeBridge', async accounts => {
         requireBlockConfirmations,
         foreignDailyLimit,
         foreignMaxPerTx,
-        owner
+        owner,
+        decimalsShiftZero
       )
     })
     it('should accept native coins', async () => {
@@ -370,7 +413,8 @@ contract('HomeBridge', async accounts => {
         requireBlockConfirmations,
         foreignDailyLimit,
         foreignMaxPerTx,
-        owner
+        owner,
+        decimalsShiftZero
       )
     })
     it('#setMaxPerTx allows to set only to owner and cannot be more than daily limit', async () => {
@@ -413,7 +457,8 @@ contract('HomeBridge', async accounts => {
         requireBlockConfirmations,
         foreignDailyLimit,
         foreignMaxPerTx,
-        owner
+        owner,
+        decimalsShiftZero
       )
       await homeBridge.sendTransaction({
         from: accounts[2],
@@ -490,7 +535,8 @@ contract('HomeBridge', async accounts => {
         requireBlockConfirmations,
         foreignDailyLimit,
         foreignMaxPerTx,
-        owner
+        owner,
+        decimalsShiftZero
       )
 
       await homeBridgeWithTwoSigs.sendTransaction({
@@ -580,7 +626,8 @@ contract('HomeBridge', async accounts => {
         requireBlockConfirmations,
         foreignDailyLimit,
         foreignMaxPerTx,
-        owner
+        owner,
+        decimalsShiftZero
       )
 
       await homeBridgeWithTwoSigs.sendTransaction({
@@ -656,7 +703,8 @@ contract('HomeBridge', async accounts => {
         requireBlockConfirmations,
         foreignDailyLimit,
         foreignMaxPerTx,
-        owner
+        owner,
+        decimalsShiftZero
       )
 
       const value = halfEther
@@ -771,7 +819,8 @@ contract('HomeBridge', async accounts => {
         requireBlockConfirmations,
         foreignDailyLimit,
         foreignMaxPerTx,
-        owner
+        owner,
+        decimalsShiftZero
       )
     })
     it('allows a validator to submit a signature', async () => {
@@ -833,7 +882,8 @@ contract('HomeBridge', async accounts => {
         requireBlockConfirmations,
         foreignDailyLimit,
         foreignMaxPerTx,
-        owner
+        owner,
+        decimalsShiftZero
       )
 
       const value = halfEther
@@ -929,7 +979,18 @@ contract('HomeBridge', async accounts => {
     it('should work with token that return bool on transfer', async () => {
       const storageProxy = await EternalStorageProxy.new()
       const data = homeContract.contract.methods
-        .initialize(validatorContract.address, '3', '2', '1', gasPrice, requireBlockConfirmations, '3', '2', owner)
+        .initialize(
+          validatorContract.address,
+          '3',
+          '2',
+          '1',
+          gasPrice,
+          requireBlockConfirmations,
+          '3',
+          '2',
+          owner,
+          decimalsShiftZero
+        )
         .encodeABI()
       await storageProxy.upgradeToAndCall('1', homeContract.address, data).should.be.fulfilled
       const homeBridge = await HomeBridge.at(storageProxy.address)
@@ -950,7 +1011,18 @@ contract('HomeBridge', async accounts => {
     it('should works with token that not return on transfer', async () => {
       const storageProxy = await EternalStorageProxy.new()
       const data = homeContract.contract.methods
-        .initialize(validatorContract.address, '3', '2', '1', gasPrice, requireBlockConfirmations, '3', '2', owner)
+        .initialize(
+          validatorContract.address,
+          '3',
+          '2',
+          '1',
+          gasPrice,
+          requireBlockConfirmations,
+          '3',
+          '2',
+          owner,
+          decimalsShiftZero
+        )
         .encodeABI()
       await storageProxy.upgradeToAndCall('1', homeContract.address, data).should.be.fulfilled
       const homeBridge = await HomeBridge.at(storageProxy.address)
@@ -980,7 +1052,8 @@ contract('HomeBridge', async accounts => {
           requireBlockConfirmations,
           oneEther.toString(),
           halfEther.toString(),
-          owner
+          owner,
+          decimalsShiftZero
         )
         .encodeABI()
       await storageProxy.upgradeToAndCall('1', homeContract.address, data).should.be.fulfilled
@@ -1033,7 +1106,8 @@ contract('HomeBridge', async accounts => {
           owner,
           feeManager.address,
           homeFee,
-          foreignFee
+          foreignFee,
+          decimalsShiftZero
         )
         .should.be.rejectedWith(ERROR_MSG)
       await homeBridge
@@ -1049,7 +1123,8 @@ contract('HomeBridge', async accounts => {
           owner,
           feeManager.address,
           homeFee,
-          foreignFee
+          foreignFee,
+          decimalsShiftZero
         )
         .should.be.rejectedWith(ERROR_MSG)
       await homeBridge
@@ -1065,7 +1140,8 @@ contract('HomeBridge', async accounts => {
           owner,
           feeManager.address,
           homeFee,
-          foreignFee
+          foreignFee,
+          decimalsShiftZero
         )
         .should.be.rejectedWith(ERROR_MSG)
       await homeBridge
@@ -1081,7 +1157,8 @@ contract('HomeBridge', async accounts => {
           owner,
           ZERO_ADDRESS,
           homeFee,
-          foreignFee
+          foreignFee,
+          decimalsShiftZero
         )
         .should.be.rejectedWith(ERROR_MSG)
       await homeBridge.rewardableInitialize(
@@ -1096,7 +1173,8 @@ contract('HomeBridge', async accounts => {
         owner,
         feeManager.address,
         homeFee,
-        foreignFee
+        foreignFee,
+        decimalsShiftZero
       ).should.be.fulfilled
 
       expect(await homeBridge.isInitialized()).to.be.equal(true)
@@ -1133,7 +1211,8 @@ contract('HomeBridge', async accounts => {
         owner,
         feeManager.address,
         homeFee,
-        foreignFee
+        foreignFee,
+        decimalsShiftZero
       ).should.be.fulfilled
 
       // Given
@@ -1161,7 +1240,8 @@ contract('HomeBridge', async accounts => {
         owner,
         feeManager.address,
         homeFee,
-        foreignFee
+        foreignFee,
+        decimalsShiftZero
       ).should.be.fulfilled
 
       // Given
@@ -1188,7 +1268,8 @@ contract('HomeBridge', async accounts => {
         owner,
         feeManager.address,
         homeFee,
-        foreignFee
+        foreignFee,
+        decimalsShiftZero
       ).should.be.fulfilled
 
       // Given
@@ -1222,7 +1303,8 @@ contract('HomeBridge', async accounts => {
         owner,
         feeManager.address,
         homeFee,
-        foreignFee
+        foreignFee,
+        decimalsShiftZero
       ).should.be.fulfilled
 
       // Then
@@ -1290,7 +1372,8 @@ contract('HomeBridge', async accounts => {
         owner,
         feeManager.address,
         notUsedFee,
-        feeInWei
+        feeInWei,
+        decimalsShiftZero
       ).should.be.fulfilled
 
       // When
@@ -1343,7 +1426,8 @@ contract('HomeBridge', async accounts => {
         owner,
         feeManager.address,
         notUsedFee,
-        feeInWei
+        feeInWei,
+        decimalsShiftZero
       ).should.be.fulfilled
 
       await homeBridge.sendTransaction({
@@ -1406,7 +1490,8 @@ contract('HomeBridge', async accounts => {
         owner,
         feeManager.address,
         notUsedFee,
-        feeInWei
+        feeInWei,
+        decimalsShiftZero
       ).should.be.fulfilled
       await homeBridge.sendTransaction({
         from: accounts[0],
@@ -1481,7 +1566,8 @@ contract('HomeBridge', async accounts => {
         owner,
         feeManager.address,
         notUsedFee,
-        feeInWei
+        feeInWei,
+        decimalsShiftZero
       ).should.be.fulfilled
       await homeBridge.sendTransaction({
         from: accounts[0],
@@ -1579,7 +1665,8 @@ contract('HomeBridge', async accounts => {
         owner,
         feeManager.address,
         notUsedFee,
-        feeInWei
+        feeInWei,
+        decimalsShiftZero
       ).should.be.fulfilled
       await homeBridge.sendTransaction({
         from: accounts[0],
@@ -1681,7 +1768,8 @@ contract('HomeBridge', async accounts => {
         owner,
         feeManager.address,
         feeInWei,
-        feeInWei
+        feeInWei,
+        decimalsShiftZero
       ).should.be.fulfilled
 
       // When
@@ -1739,7 +1827,8 @@ contract('HomeBridge', async accounts => {
         owner,
         feeManager.address,
         feeInWei,
-        feeInWei
+        feeInWei,
+        decimalsShiftZero
       ).should.be.fulfilled
 
       await homeBridge.sendTransaction({
@@ -1805,7 +1894,8 @@ contract('HomeBridge', async accounts => {
         owner,
         feeManager.address,
         feeInWei,
-        feeInWei
+        feeInWei,
+        decimalsShiftZero
       ).should.be.fulfilled
 
       await homeBridge.sendTransaction({
@@ -1892,7 +1982,8 @@ contract('HomeBridge', async accounts => {
         owner,
         feeManager.address,
         feeInWei,
-        feeInWei
+        feeInWei,
+        decimalsShiftZero
       ).should.be.fulfilled
 
       await homeBridge.sendTransaction({
@@ -1981,7 +2072,8 @@ contract('HomeBridge', async accounts => {
         owner,
         feeManager.address,
         feeInWei,
-        feeInWei
+        feeInWei,
+        decimalsShiftZero
       ).should.be.fulfilled
       await homeBridge.sendTransaction({
         from: accounts[0],
@@ -2055,7 +2147,8 @@ contract('HomeBridge', async accounts => {
         owner,
         feeManager.address,
         feeInWei,
-        feeInWei
+        feeInWei,
+        decimalsShiftZero
       ).should.be.fulfilled
       await homeBridge.sendTransaction({
         from: accounts[0],
@@ -2152,7 +2245,8 @@ contract('HomeBridge', async accounts => {
         owner,
         feeManager.address,
         feeInWei,
-        feeInWei
+        feeInWei,
+        decimalsShiftZero
       ).should.be.fulfilled
       await homeBridge.sendTransaction({
         from: accounts[0],

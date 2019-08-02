@@ -24,7 +24,8 @@ contract ForeignBridgeNativeToErc is
         uint256 _requiredBlockConfirmations,
         uint256 _homeDailyLimit,
         uint256 _homeMaxPerTx,
-        address _owner
+        address _owner,
+        uint256 _decimalsShift
     ) external returns (bool) {
         _initialize(
             _validatorContract,
@@ -36,7 +37,8 @@ contract ForeignBridgeNativeToErc is
             _requiredBlockConfirmations,
             _homeDailyLimit,
             _homeMaxPerTx,
-            _owner
+            _owner,
+            _decimalsShift
         );
         setInitialize();
         return isInitialized();
@@ -54,7 +56,8 @@ contract ForeignBridgeNativeToErc is
         uint256 _homeMaxPerTx,
         address _owner,
         address _feeManager,
-        uint256 _homeFee
+        uint256 _homeFee,
+        uint256 _decimalsShift
     ) external returns (bool) {
         _initialize(
             _validatorContract,
@@ -66,7 +69,8 @@ contract ForeignBridgeNativeToErc is
             _requiredBlockConfirmations,
             _homeDailyLimit,
             _homeMaxPerTx,
-            _owner
+            _owner,
+            _decimalsShift
         );
         require(AddressUtils.isContract(_feeManager));
         addressStorage[FEE_MANAGER_CONTRACT] = _feeManager;
@@ -93,7 +97,8 @@ contract ForeignBridgeNativeToErc is
         uint256 _requiredBlockConfirmations,
         uint256 _homeDailyLimit,
         uint256 _homeMaxPerTx,
-        address _owner
+        address _owner,
+        uint256 _decimalsShift
     ) internal {
         require(!isInitialized());
         require(AddressUtils.isContract(_validatorContract));
@@ -113,6 +118,7 @@ contract ForeignBridgeNativeToErc is
         uintStorage[REQUIRED_BLOCK_CONFIRMATIONS] = _requiredBlockConfirmations;
         uintStorage[EXECUTION_DAILY_LIMIT] = _homeDailyLimit;
         uintStorage[EXECUTION_MAX_PER_TX] = _homeMaxPerTx;
+        uintStorage[DECIMALS_SHIFT] = _decimalsShift;
         setOwner(_owner);
 
         emit RequiredBlockConfirmationChanged(_requiredBlockConfirmations);
