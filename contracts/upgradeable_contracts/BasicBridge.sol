@@ -131,7 +131,7 @@ contract BasicBridge is Initializable, Validatable, Ownable, Upgradeable, Claima
     function decimalsShift() public view returns (uint256) {
         return uintStorage[DECIMALS_SHIFT];
     }
-    
+
     function setDecimalsShift(uint256 _decimalsShift) external onlyOwner {
         uintStorage[DECIMALS_SHIFT] = _decimalsShift;
     }

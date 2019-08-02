@@ -53,12 +53,15 @@ const {
   DPOS_STAKING_ADDRESS,
   HOME_REWARDABLE,
   HOME_TRANSACTIONS_FEE,
-  FOREIGN_TRANSACTIONS_FEE
+  FOREIGN_TRANSACTIONS_FEE,
+  FOREIGN_TO_HOME_DECIMAL_SHIFT
 } = env
 
 const DEPLOYMENT_ACCOUNT_ADDRESS = privateKeyToAddress(DEPLOYMENT_ACCOUNT_PRIVATE_KEY)
 
 const isRewardableBridge = HOME_REWARDABLE === 'BOTH_DIRECTIONS'
+
+const foreignToHomeDecimalShift=FOREIGN_TO_HOME_DECIMAL_SHIFT?FOREIGN_TO_HOME_DECIMAL_SHIFT:0
 
 async function initializeBridge({ validatorsBridge, bridge, erc677token, initialNonce }) {
   let nonce = initialNonce
@@ -116,7 +119,8 @@ async function initializeBridge({ validatorsBridge, bridge, erc677token, initial
     HOME_MIN_AMOUNT_PER_TX: ${HOME_MIN_AMOUNT_PER_TX} which is ${Web3Utils.fromWei(
       HOME_MIN_AMOUNT_PER_TX
     )} in eth,
-    HOME_GAS_PRICE: ${HOME_GAS_PRICE}, HOME_REQUIRED_BLOCK_CONFIRMATIONS : ${HOME_REQUIRED_BLOCK_CONFIRMATIONS}
+    HOME_GAS_PRICE: ${HOME_GAS_PRICE}, HOME_REQUIRED_BLOCK_CONFIRMATIONS : ${HOME_REQUIRED_BLOCK_CONFIRMATIONS},
+    FOREIGN_TO_HOME_DECIMAL_SHIFT: ${foreignToHomeDecimalShift}
     `)
     initializeHomeBridgeData = await bridge.methods
       .initialize(
@@ -129,7 +133,8 @@ async function initializeBridge({ validatorsBridge, bridge, erc677token, initial
         erc677token.options.address,
         FOREIGN_DAILY_LIMIT,
         FOREIGN_MAX_AMOUNT_PER_TX,
-        HOME_BRIDGE_OWNER
+        HOME_BRIDGE_OWNER,
+        foreignToHomeDecimalShift
       )
       .encodeABI()
   }
