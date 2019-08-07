@@ -157,6 +157,36 @@ async function initializeBridge({ validatorsBridge, bridge, erc677token, initial
   }
   nonce++
 
+  if (isRewardableBridge && BLOCK_REWARD_ADDRESS !== ZERO_ADDRESS && FOREIGN_TO_HOME_DECIMAL_SHIFT) {
+    console.log(`Initialize decimal shift with parameter :
+    FOREIGN_TO_HOME_DECIMAL_SHIFT: ${foreignToHomeDecimalShift}
+    `)
+    let initializeDecimalsShiftData = await bridge.methods
+    .setDecimalsShift(
+      foreignToHomeDecimalShift
+    )
+    .encodeABI()
+
+    const txInitializeDecimalsShift = await sendRawTxHome({
+      data: initializeDecimalsShiftData,
+      nonce,
+      to: bridge.options.address,
+      privateKey: deploymentPrivateKey,
+      url: HOME_RPC_URL
+    })
+    if (txInitializeDecimalsShift.status) {
+      assert.strictEqual(
+        Web3Utils.hexToNumber(txInitializeDecimalsShift.status),
+        1,
+        'Transaction Failed'
+      )
+    } else {
+      await assertStateWithRetry(bridge.methods.decimalsShift().call, foreignToHomeDecimalShift)
+    }
+    nonce++
+  }
+
+
   return nonce
 }
 
