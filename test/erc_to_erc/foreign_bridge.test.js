@@ -523,7 +523,8 @@ contract('ForeignBridge_ERC20_to_ERC20', async accounts => {
         minPerTx,
         homeDailyLimit,
         homeMaxPerTx,
-        owner
+        owner,
+        decimalsShiftZero
       )
 
       expectEventInLogs(logs, 'RequiredBlockConfirmationChanged', {

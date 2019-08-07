@@ -5,14 +5,12 @@ import "../BasicForeignBridge.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20Basic.sol";
 import "../ERC677BridgeForBurnableMintableToken.sol";
 import "./RewardableForeignBridgeNativeToErc.sol";
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 contract ForeignBridgeNativeToErc is
     BasicForeignBridge,
     ERC677BridgeForBurnableMintableToken,
     RewardableForeignBridgeNativeToErc
 {
-    using SafeMath for uint256;
     /// Event created on money withdraw.
     event UserRequestForAffirmation(address recipient, uint256 value);
 

@@ -5,10 +5,8 @@ import "../../upgradeability/EternalStorage.sol";
 import "../BasicHomeBridge.sol";
 import "./RewardableHomeBridgeNativeToErc.sol";
 import "../Sacrifice.sol";
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 contract HomeBridgeNativeToErc is EternalStorage, BasicHomeBridge, RewardableHomeBridgeNativeToErc {
-    using SafeMath for uint256;
     function() public payable {
         nativeTransfer();
     }
