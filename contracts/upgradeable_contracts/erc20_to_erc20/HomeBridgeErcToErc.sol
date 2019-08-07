@@ -7,6 +7,7 @@ import "../BasicHomeBridge.sol";
 import "../OverdrawManagement.sol";
 import "./RewardableHomeBridgeErcToErc.sol";
 import "../ERC677BridgeForBurnableMintableToken.sol";
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 contract HomeBridgeErcToErc is
     EternalStorage,
@@ -15,6 +16,7 @@ contract HomeBridgeErcToErc is
     OverdrawManagement,
     RewardableHomeBridgeErcToErc
 {
+    using SafeMath for uint256;
     event AmountLimitExceeded(address recipient, uint256 value, bytes32 transactionHash);
 
     function initialize(
@@ -165,7 +167,7 @@ contract HomeBridgeErcToErc is
 
     function onExecuteAffirmation(address _recipient, uint256 _value, bytes32 txHash) internal returns (bool) {
         setTotalExecutedPerDay(getCurrentDay(), totalExecutedPerDay(getCurrentDay()).add(_value));
-        uint256 valueToMint = _value;
+        uint256 valueToMint = _value.mul(10 ** decimalsShift());
         address feeManager = feeManagerContract();
         if (feeManager != address(0)) {
             uint256 fee = calculateFee(valueToMint, false, feeManager, FOREIGN_FEE);

@@ -3,7 +3,12 @@ pragma solidity 0.4.24;
 import "../BasicForeignBridge.sol";
 import "../ERC20Bridge.sol";
 
+<<<<<<< HEAD
 contract ForeignBridgeErcToNative is BasicForeignBridge, ERC20Bridge {
+=======
+contract ForeignBridgeErcToNative is BasicForeignBridge {
+    using SafeMath for uint256;
+>>>>>>> ab4c062... decimals shift issue #243. add full tests coverage
     event RelayedMessage(address recipient, uint256 value, bytes32 transactionHash);
 
     function initialize(

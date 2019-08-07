@@ -5,8 +5,10 @@ import "../../upgradeability/EternalStorage.sol";
 import "../BasicHomeBridge.sol";
 import "./RewardableHomeBridgeNativeToErc.sol";
 import "../Sacrifice.sol";
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 contract HomeBridgeNativeToErc is EternalStorage, BasicHomeBridge, RewardableHomeBridgeNativeToErc {
+    using SafeMath for uint256;
     function() public payable {
         nativeTransfer();
     }
@@ -147,7 +149,7 @@ contract HomeBridgeNativeToErc is EternalStorage, BasicHomeBridge, RewardableHom
 
     function onExecuteAffirmation(address _recipient, uint256 _value, bytes32 txHash) internal returns (bool) {
         setTotalExecutedPerDay(getCurrentDay(), totalExecutedPerDay(getCurrentDay()).add(_value));
-        uint256 valueToTransfer = _value;
+        uint256 valueToTransfer = _value.mul(10 ** decimalsShift());
 
         address feeManager = feeManagerContract();
         if (feeManager != address(0)) {

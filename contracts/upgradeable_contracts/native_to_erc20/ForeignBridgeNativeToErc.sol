@@ -5,12 +5,14 @@ import "../BasicForeignBridge.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20Basic.sol";
 import "../ERC677BridgeForBurnableMintableToken.sol";
 import "./RewardableForeignBridgeNativeToErc.sol";
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 contract ForeignBridgeNativeToErc is
     BasicForeignBridge,
     ERC677BridgeForBurnableMintableToken,
     RewardableForeignBridgeNativeToErc
 {
+    using SafeMath for uint256;
     /// Event created on money withdraw.
     event UserRequestForAffirmation(address recipient, uint256 value);
 
@@ -129,7 +131,7 @@ contract ForeignBridgeNativeToErc is
 
     function onExecuteMessage(address _recipient, uint256 _amount, bytes32 _txHash) internal returns (bool) {
         setTotalExecutedPerDay(getCurrentDay(), totalExecutedPerDay(getCurrentDay()).add(_amount));
-        uint256 valueToMint = _amount;
+        uint256 valueToMint = _amount.div(10 ** decimalsShift());
         address feeManager = feeManagerContract();
         if (feeManager != address(0)) {
             uint256 fee = calculateFee(valueToMint, false, feeManager, HOME_FEE);
