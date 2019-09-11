@@ -132,6 +132,10 @@ contract BasicBridge is Initializable, Validatable, Ownable, Upgradeable, Claima
         return uintStorage[DECIMAL_SHIFT];
     }
 
+    function setDecimalShift(uint256 _decimalShift) external onlyOwner {
+        uintStorage[DECIMAL_SHIFT] = _decimalShift;
+    }
+
     function claimTokens(address _token, address _to) public onlyIfUpgradeabilityOwner validAddress(_to) {
         claimValues(_token, _to);
     }
