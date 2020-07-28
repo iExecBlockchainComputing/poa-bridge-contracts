@@ -1,5 +1,6 @@
 const POA20 = artifacts.require('ERC677BridgeToken.sol')
-const POA20RewardableMock = artifacts.require('./mockContracts/ERC677BridgeTokenRewardableMock')
+const NoReturnTransferTokenMock = artifacts.require('NoReturnTransferTokenMock.sol')
+const POA20RewardableMock = artifacts.require('ERC677BridgeTokenRewardableMock')
 const ERC677ReceiverTest = artifacts.require('ERC677ReceiverTest.sol')
 const BlockRewardTest = artifacts.require('BlockReward.sol')
 const StakingTest = artifacts.require('Staking.sol')
@@ -8,7 +9,7 @@ const ForeignNativeToErcBridge = artifacts.require('ForeignBridgeNativeToErc.sol
 const BridgeValidators = artifacts.require('BridgeValidators.sol')
 
 const { expect } = require('chai')
-const { ERROR_MSG, ZERO_ADDRESS, BN } = require('./setup')
+const { ERROR_MSG, ERROR_MSG_OPCODE, ZERO_ADDRESS, BN } = require('./setup')
 const { ether, expectEventInLogs } = require('./helpers/helpers')
 
 const minPerTx = ether('0.01')
@@ -19,6 +20,7 @@ const halfEther = ether('0.5')
 const executionDailyLimit = oneEther
 const executionMaxPerTx = halfEther
 const ZERO = new BN(0)
+const decimalShiftZero = 0
 
 async function testERC677BridgeToken(accounts, rewardable) {
   let token
@@ -138,6 +140,17 @@ async function testERC677BridgeToken(accounts, rewardable) {
         await token.setStakingContract(ZERO_ADDRESS).should.be.rejectedWith(ERROR_MSG)
         ;(await token.stakingContract()).should.be.equal(ZERO_ADDRESS)
       })
+
+      it('fail to set Staking contract address with non-zero balance', async () => {
+        const stakingContract = await StakingTest.new()
+        ;(await token.stakingContract()).should.be.equal(ZERO_ADDRESS)
+
+        await token.mint(user, 1, { from: owner }).should.be.fulfilled
+        await token.transfer(stakingContract.address, 1, { from: user }).should.be.fulfilled
+
+        await token.setStakingContract(stakingContract.address).should.be.rejectedWith(ERROR_MSG)
+        ;(await token.stakingContract()).should.be.equal(ZERO_ADDRESS)
+      })
     })
 
     describe('#mintReward', async () => {
@@ -179,7 +192,7 @@ async function testERC677BridgeToken(accounts, rewardable) {
         await token.mintReward([user], ['99'], { from: accounts[2] }).should.be.fulfilled
         expect(await token.balanceOf(user)).to.be.bignumber.equal('99')
         await token.setStakingContractMock(accounts[3]).should.be.fulfilled
-        await token.stake(user, '100', { from: accounts[3] }).should.be.rejectedWith(ERROR_MSG)
+        await token.stake(user, '100', { from: accounts[3] }).should.be.rejectedWith(ERROR_MSG_OPCODE)
       })
       it("should decrease user's balance and increase Staking's balance", async () => {
         await token.setBlockRewardContractMock(accounts[2]).should.be.fulfilled
@@ -190,39 +203,6 @@ async function testERC677BridgeToken(accounts, rewardable) {
         await token.stake(user, '100', { from: accounts[3] }).should.be.fulfilled
         expect(await token.balanceOf(user)).to.be.bignumber.equal(ZERO)
         expect(await token.balanceOf(accounts[3])).to.be.bignumber.equal('100')
-      })
-    })
-
-    describe('#withdraw', async () => {
-      it('can only be called by Staking contract', async () => {
-        await token.setBlockRewardContractMock(accounts[2]).should.be.fulfilled
-        await token.mintReward([user], ['100'], { from: accounts[2] }).should.be.fulfilled
-        await token.setStakingContractMock(accounts[3]).should.be.fulfilled
-        await token.stake(user, '100', { from: accounts[3] }).should.be.fulfilled
-        await token.withdraw(user, '100', { from: accounts[4] }).should.be.rejectedWith(ERROR_MSG)
-        await token.withdraw(user, '100', { from: accounts[3] }).should.be.fulfilled
-      })
-      it("should revert if Staking doesn't have enough balance", async () => {
-        await token.setBlockRewardContractMock(accounts[2]).should.be.fulfilled
-        await token.mintReward([user], ['100'], { from: accounts[2] }).should.be.fulfilled
-        expect(await token.balanceOf(user)).to.be.bignumber.equal('100')
-        await token.setStakingContractMock(accounts[3]).should.be.fulfilled
-        await token.stake(user, '100', { from: accounts[3] }).should.be.fulfilled
-        await token.withdraw(user, '101', { from: accounts[3] }).should.be.rejectedWith(ERROR_MSG)
-        await token.withdraw(user, '100', { from: accounts[3] }).should.be.fulfilled
-      })
-      it("should decrease Staking's balance and increase user's balance", async () => {
-        await token.setBlockRewardContractMock(accounts[2]).should.be.fulfilled
-        await token.mintReward([user], ['100'], { from: accounts[2] }).should.be.fulfilled
-        expect(await token.balanceOf(user)).to.be.bignumber.equal('100')
-        expect(await token.balanceOf(accounts[3])).to.be.bignumber.equal(ZERO)
-        await token.setStakingContractMock(accounts[3]).should.be.fulfilled
-        await token.stake(user, '100', { from: accounts[3] }).should.be.fulfilled
-        expect(await token.balanceOf(user)).to.be.bignumber.equal('0')
-        expect(await token.balanceOf(accounts[3])).to.be.bignumber.equal('100')
-        await token.withdraw(user, 60, { from: accounts[3] }).should.be.fulfilled
-        expect(await token.balanceOf(user)).to.be.bignumber.equal('60')
-        expect(await token.balanceOf(accounts[3])).to.be.bignumber.equal('40')
       })
     })
   }
@@ -258,28 +238,24 @@ async function testERC677BridgeToken(accounts, rewardable) {
       homeErcToErcContract = await HomeErcToErcBridge.new()
       await homeErcToErcContract.initialize(
         validatorContract.address,
-        oneEther,
-        halfEther,
-        minPerTx,
+        [oneEther, halfEther, minPerTx],
         gasPrice,
         requireBlockConfirmations,
         token.address,
-        executionDailyLimit,
-        executionMaxPerTx,
-        owner
+        [executionDailyLimit, executionMaxPerTx],
+        owner,
+        decimalShiftZero
       )
       foreignNativeToErcBridge = await ForeignNativeToErcBridge.new()
       await foreignNativeToErcBridge.initialize(
         validatorContract.address,
         token.address,
-        oneEther,
-        halfEther,
-        minPerTx,
+        [oneEther, halfEther, minPerTx],
         gasPrice,
         requireBlockConfirmations,
-        executionDailyLimit,
-        executionMaxPerTx,
-        owner
+        [executionDailyLimit, executionMaxPerTx],
+        owner,
+        decimalShiftZero
       )
     })
     it('sends tokens to recipient', async () => {
@@ -359,9 +335,27 @@ async function testERC677BridgeToken(accounts, rewardable) {
       })
     }
   })
+  describe('#transferFrom', async () => {
+    it('should call onTokenTransfer', async () => {
+      const receiver = await ERC677ReceiverTest.new()
+      const amount = ether('1')
+      const user2 = accounts[2]
 
-  if (rewardable) {
-    describe('#transferFrom', async () => {
+      await token.setBridgeContract(receiver.address).should.be.fulfilled
+
+      expect(await receiver.from()).to.be.equal(ZERO_ADDRESS)
+      expect(await receiver.value()).to.be.bignumber.equal(ZERO)
+      expect(await receiver.data()).to.be.equal(null)
+
+      await token.mint(user, amount, { from: owner }).should.be.fulfilled
+      await token.approve(user2, amount, { from: user }).should.be.fulfilled
+      await token.transferFrom(user, receiver.address, amount, { from: user2 }).should.be.fulfilled
+
+      expect(await receiver.from()).to.be.equal(user)
+      expect(await receiver.value()).to.be.bignumber.equal(amount)
+      expect(await receiver.data()).to.be.equal(null)
+    })
+    if (rewardable) {
       it('fail to send tokens to Staking contract directly', async () => {
         const amount = ether('1')
         const user2 = accounts[2]
@@ -375,8 +369,8 @@ async function testERC677BridgeToken(accounts, rewardable) {
           .should.be.rejectedWith(ERROR_MSG)
         await token.transferFrom(user, arbitraryAccountAddress, amount, { from: user2 }).should.be.fulfilled
       })
-    })
-  }
+    }
+  })
 
   describe('#burn', async () => {
     it('can burn', async () => {
@@ -399,28 +393,24 @@ async function testERC677BridgeToken(accounts, rewardable) {
       homeErcToErcContract = await HomeErcToErcBridge.new()
       await homeErcToErcContract.initialize(
         validatorContract.address,
-        oneEther,
-        halfEther,
-        minPerTx,
+        [oneEther, halfEther, minPerTx],
         gasPrice,
         requireBlockConfirmations,
         token.address,
-        executionDailyLimit,
-        executionMaxPerTx,
-        owner
+        [executionDailyLimit, executionMaxPerTx],
+        owner,
+        decimalShiftZero
       )
       foreignNativeToErcBridge = await ForeignNativeToErcBridge.new()
       await foreignNativeToErcBridge.initialize(
         validatorContract.address,
         token.address,
-        oneEther,
-        halfEther,
-        minPerTx,
+        [oneEther, halfEther, minPerTx],
         gasPrice,
         requireBlockConfirmations,
-        executionDailyLimit,
-        executionMaxPerTx,
-        owner
+        [executionDailyLimit, executionMaxPerTx],
+        owner,
+        decimalShiftZero
       )
     })
     it('calls contractFallback', async () => {
@@ -510,6 +500,22 @@ async function testERC677BridgeToken(accounts, rewardable) {
       expect(await tokenSecond.balanceOf(token.address)).to.be.bignumber.equal(ZERO)
       halfEther.should.be.bignumber.equal(await tokenSecond.balanceOf(accounts[3]))
     })
+    it('works with token that not return on transfer', async () => {
+      const owner = accounts[0]
+      const halfEther = ether('0.5')
+      const tokenMock = await NoReturnTransferTokenMock.new()
+
+      await tokenMock.mint(accounts[0], halfEther).should.be.fulfilled
+      expect(await tokenMock.balanceOf(accounts[0])).to.be.bignumber.equal(halfEther)
+
+      await tokenMock.transfer(token.address, halfEther).should.be.fulfilled
+      expect(await tokenMock.balanceOf(accounts[0])).to.be.bignumber.equal(ZERO)
+      expect(await tokenMock.balanceOf(token.address)).to.be.bignumber.equal(halfEther)
+
+      await token.claimTokens(tokenMock.address, accounts[3], { from: owner }).should.be.fulfilled
+      expect(await tokenMock.balanceOf(token.address)).to.be.bignumber.equal(ZERO)
+      expect(await tokenMock.balanceOf(accounts[3])).to.be.bignumber.equal(halfEther)
+    })
   })
   describe('#transfer', async () => {
     it('if transfer called on contract, onTokenTransfer is also invoked', async () => {
@@ -538,6 +544,12 @@ async function testERC677BridgeToken(accounts, rewardable) {
       expect(await token.balanceOf(user)).to.be.bignumber.equal(ZERO)
       tokenTransfer.logs[0].event.should.be.equal('Transfer')
       tokenTransfer2.logs[0].event.should.be.equal('Transfer')
+    })
+  })
+  describe('#renounceOwnership', () => {
+    it('should not be able to renounce ownership', async () => {
+      await token.renounceOwnership({ from: user }).should.be.rejectedWith(ERROR_MSG)
+      await token.renounceOwnership().should.be.rejectedWith(ERROR_MSG)
     })
   })
 }

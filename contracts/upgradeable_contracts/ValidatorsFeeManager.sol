@@ -1,13 +1,17 @@
 pragma solidity 0.4.24;
 
 import "./BaseFeeManager.sol";
-import "../IRewardableValidators.sol";
+import "../interfaces/IRewardableValidators.sol";
+import "./ValidatorStorage.sol";
 
-contract ValidatorsFeeManager is BaseFeeManager {
+contract ValidatorsFeeManager is BaseFeeManager, ValidatorStorage {
+    bytes32 public constant REWARD_FOR_TRANSFERRING_FROM_HOME = keccak256(
+        abi.encodePacked("reward-transferring-from-home")
+    );
 
-    bytes32 public constant REWARD_FOR_TRANSFERRING_FROM_HOME = keccak256(abi.encodePacked("reward-transferring-from-home"));
-
-    bytes32 public constant REWARD_FOR_TRANSFERRING_FROM_FOREIGN = keccak256(abi.encodePacked("reward-transferring-from-foreign"));
+    bytes32 public constant REWARD_FOR_TRANSFERRING_FROM_FOREIGN = keccak256(
+        abi.encodePacked("reward-transferring-from-foreign")
+    );
 
     function distributeFeeFromAffirmation(uint256 _fee) external {
         distributeFeeProportionally(_fee, REWARD_FOR_TRANSFERRING_FROM_FOREIGN);
@@ -17,12 +21,13 @@ contract ValidatorsFeeManager is BaseFeeManager {
         distributeFeeProportionally(_fee, REWARD_FOR_TRANSFERRING_FROM_HOME);
     }
 
-    function rewardableValidatorContract() internal view returns(IRewardableValidators) {
-        return IRewardableValidators(addressStorage[keccak256(abi.encodePacked("validatorContract"))]);
+    function rewardableValidatorContract() internal view returns (IRewardableValidators) {
+        return IRewardableValidators(addressStorage[VALIDATOR_CONTRACT]);
     }
 
     function distributeFeeProportionally(uint256 _fee, bytes32 _direction) internal {
         IRewardableValidators validators = rewardableValidatorContract();
+        // solhint-disable-next-line var-name-mixedcase
         address F_ADDR = 0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF;
         uint256 numOfValidators = validators.validatorCount();
 
@@ -61,7 +66,9 @@ contract ValidatorsFeeManager is BaseFeeManager {
         }
     }
 
+    /* solcov ignore next */
     function onAffirmationFeeDistribution(address _rewardAddress, uint256 _fee) internal;
 
+    /* solcov ignore next */
     function onSignatureFeeDistribution(address _rewardAddress, uint256 _fee) internal;
 }

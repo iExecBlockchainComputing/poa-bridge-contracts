@@ -1,0 +1,123 @@
+Bridge contract deployment started
+Bridge mode: ERC_TO_NATIVE
+deploying storage for home validators
+pending txHash 0xd3f0ca9ad881a69399e0e619e6ce70c635862fd2fd8e316ac28eb8f2a8d52944
+[Home] BridgeValidators Storage:  0xc7640f4C499d86204cC2D0DE9063E1d0251756f7
+
+deploying implementation for home validators
+pending txHash 0xaa32afba1bcd6475e27a1c5d8b814c1d875477044745aa22ebdf2845a9df7a58
+[Home] BridgeValidators Implementation:  0x8ff899e7e838321756cF3A697d93021bdA41f087
+
+hooking up eternal storage to BridgeValidators
+pending txHash 0x0d3cbde7d6121c689c219906de9851d6b30a4c3a6251bc12a7b2de51451d4860
+
+initializing Home Bridge Validators with following parameters:
+
+REQUIRED_NUMBER_OF_VALIDATORS: 1, VALIDATORS: 0x44b318a63d2e69d4cd6144b33b3e823fa02cec40, VALIDATORS_OWNER: 0x44b318a63d2e69d4cd6144b33b3e823fa02cec40
+pending txHash 0x7ef37e42a232c9e7d242e4911f4b7a75208d82bdd63e900c8338d3fe07331933
+transferring proxy ownership to multisig for Validators Proxy contract
+pending txHash 0x99795c815105c58592e51ac9c42c97d728de241d5a4917f1822b871e37e26b3c
+
+deploying homeBridge storage
+
+pending txHash 0xf10d274c01945495fe0f7c0aedf7b6ae33646d37def4a05f4d0e8394aef781ea
+[Home] HomeBridge Storage:  0x9214b954D1F5E06E3Bff4DB1c917753D03b4dF0a
+
+deploying homeBridge implementation
+
+pending txHash 0xd1b4f365304906d770d6ec7a4763f0329bdae4e500920530261ebe17a0882010
+[Home] HomeBridge Implementation:  0xF523523EDf5A88a4a50484F555E6a6B23F3C38E8
+
+hooking up HomeBridge storage to HomeBridge implementation
+pending txHash 0xc6527044d41237a196e8db8b687db0a9be0d2f210b297dcca121d8e3b57eee88
+
+initializing Home Bridge with following parameters:
+
+Home Validators: 0xc7640f4C499d86204cC2D0DE9063E1d0251756f7,
+  HOME_DAILY_LIMIT : 10000000000000000000000 which is 10000 in eth,
+  HOME_MAX_AMOUNT_PER_TX: 1000000000000000000000 which is 1000 in eth,
+  HOME_MIN_AMOUNT_PER_TX: 100000000000000000 which is 0.1 in eth,
+  HOME_GAS_PRICE: 0, HOME_REQUIRED_BLOCK_CONFIRMATIONS : 1,
+  BLOCK_REWARD_ADDRESS: 0xb3474eeaba26d8b700dbb7667a6f04c826a6523b,
+  FOREIGN_DAILY_LIMIT: 10000000000000 which is 0.00001 in eth,
+  FOREIGN_MAX_AMOUNT_PER_TX: 1000000000000 which is 0.000001 in eth,
+  HOME_BRIDGE_OWNER: 0x44b318a63d2e69d4cd6144b33b3e823fa02cec40,
+  FOREIGN_TO_HOME_DECIMAL_SHIFT: 9
+
+pending txHash 0x7a3f150541a2881e92bac305c898b6dcec5075c8a01fd89a8048a2c73c6ed113
+transferring proxy ownership to multisig for Home bridge Proxy contract
+pending txHash 0xeac834b0ff5531badd66e4d64f39317a6ae5b5d12f82c268776682e6e56dc153
+
+Home Deployment Bridge completed
+
+========================================
+deploying ForeignBridge
+========================================
+
+deploying storage for foreign validators
+pending txHash 0xc097384d7d9cc15d849827871287c44d0c8c956fe5834b5f2cb7fd0a8dc48df3
+[Foreign] BridgeValidators Storage:  0x7fd91cf3C22D078f8687847BB96563b72202298E
+
+deploying implementation for foreign validators
+pending txHash 0x61bdb39285f2f9bd20469cee2e4e2dd06e551a728da8ff51f03ec436ec5e141b
+[Foreign] BridgeValidators Implementation:  0x969f84991Cd8dEcfcAf30602E3585D55093cC406
+
+hooking up eternal storage to BridgeValidators
+pending txHash 0xedda9aa6a935f887ac49fbeb9d3b39999f5a9172ceb47c1c1d1b67ebcfb1f31c
+
+initializing Foreign Bridge Validators with following parameters:
+
+REQUIRED_NUMBER_OF_VALIDATORS: 1, VALIDATORS: 0x44b318a63d2e69d4cd6144b33b3e823fa02cec40, VALIDATORS_OWNER: 0x44b318a63d2e69d4cd6144b33b3e823fa02cec40
+pending txHash 0x741220de1e003051d08a19b1df4e06f84af0b5f40fb59332bdb84d1f0a1f1fb6
+
+Transferring ownership of ValidatorsProxy
+
+pending txHash 0x0395c725299156d2a3f8b36e90f65680c3f01cd99fe8bff23aa3b1681189621a
+
+deploying foreignBridge storage
+
+pending txHash 0xf9f6f592e5e5ab5c4d48a4f5f9a476fd1ec0c0bfff86ecd32aa698a697836ca7
+[Foreign] ForeignBridge Storage:  0xaE1c56c009B63B16eec6D9F8Cd8E29b344A3D30C
+
+deploying foreignBridge implementation
+
+pending txHash 0x705117b15b3906543cf697cc2e8a48ee210580eec1b062c252d058b443559c27
+[Foreign] ForeignBridge Implementation:  0x249F16838db045fe16838DBfc7CB508A1D660A73
+
+hooking up ForeignBridge storage to ForeignBridge implementation
+pending txHash 0xc4b974e386d3d002ca2798715686f9d386906850d9a65aa54d8d70e57e138540
+
+initializing Foreign Bridge with following parameters:
+
+Foreign Validators: 0x7fd91cf3C22D078f8687847BB96563b72202298E,
+  ERC20_TOKEN_ADDRESS: 0xe0d00540a3729b4fdb96f92534da97dc7973af8b,
+  FOREIGN_MAX_AMOUNT_PER_TX: 1000000000000 which is 0.000001 in eth,
+  FOREIGN_GAS_PRICE: 10000000000, FOREIGN_REQUIRED_BLOCK_CONFIRMATIONS : 8,
+    HOME_DAILY_LIMIT: 10000000000000000000000 which is 10000 in eth,
+  HOME_MAX_AMOUNT_PER_TX: 1000000000000000000000 which is 1000 in eth,
+  FOREIGN_BRIDGE_OWNER: 0x44b318a63d2e69d4cd6144b33b3e823fa02cec40,
+  FOREIGN_TO_HOME_DECIMAL_SHIFT: 9
+
+pending txHash 0x0e9664dece29cd9cba308c62dbd427091f410792532e190b553ff82573b96e93
+transferring proxy ownership to multisig for foreign bridge Proxy contract
+pending txHash 0x2f61d2161a9cbe64e4bb9a774c3b04d87e94806a0b93519c1303e4413751f088
+
+Foreign Deployment Bridge completed
+
+
+Deployment has been completed.
+
+
+[ Home ] HomeBridge: 0x9214b954D1F5E06E3Bff4DB1c917753D03b4dF0a at block 872395
+[ Foreign ] ForeignBridge: 0xaE1c56c009B63B16eec6D9F8Cd8E29b344A3D30C at block 1283933
+Contracts Deployment have been saved to `bridgeDeploymentResults.json`
+{
+    "homeBridge": {
+        "address": "0x9214b954D1F5E06E3Bff4DB1c917753D03b4dF0a",
+        "deployedBlockNumber": 872395
+    },
+    "foreignBridge": {
+        "address": "0xaE1c56c009B63B16eec6D9F8Cd8E29b344A3D30C",
+        "deployedBlockNumber": 1283933
+    }
+}

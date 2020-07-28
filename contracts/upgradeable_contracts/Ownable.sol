@@ -2,7 +2,6 @@ pragma solidity 0.4.24;
 
 import "../upgradeability/EternalStorage.sol";
 
-
 /**
  * @title Ownable
  * @dev This contract has an owner address providing basic authorization control
@@ -20,6 +19,7 @@ contract Ownable is EternalStorage {
     */
     modifier onlyOwner() {
         require(msg.sender == owner());
+        /* solcov ignore next */
         _;
     }
 
@@ -35,7 +35,7 @@ contract Ownable is EternalStorage {
     * @dev Allows the current owner to transfer control of the contract to a newOwner.
     * @param newOwner the address to transfer ownership to.
     */
-    function transferOwnership(address newOwner) public onlyOwner {
+    function transferOwnership(address newOwner) external onlyOwner {
         require(newOwner != address(0));
         setOwner(newOwner);
     }

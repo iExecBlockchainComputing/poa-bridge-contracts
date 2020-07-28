@@ -1,12 +1,11 @@
 pragma solidity 0.4.24;
 
-
 contract RevertFallback {
-    function () public payable {
+    function() public payable {
         revert();
     }
 
     function receiveEth() public payable {
-
+        // solhint-disable-previous-line no-empty-blocks
     }
 }

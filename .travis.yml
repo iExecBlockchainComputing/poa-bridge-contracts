@@ -7,12 +7,8 @@ node_js:
 cache:
   yarn: true
 env:
-  - SOLIDITY_COVERAGE=false
-  - SOLIDITY_COVERAGE=true
-matrix:
-  fast_finish: true
-  allow_failures:
-    - env: SOLIDITY_COVERAGE=true
-script:
-  - yarn lint:js
-  - yarn test
+    - $TASK=lint
+    - $TASK=test
+    - $TASK=coverage
+    - $TASK=test:gasreport:ci
+script: "npm run $TASK"

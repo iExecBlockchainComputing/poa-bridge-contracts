@@ -1,10 +1,9 @@
 pragma solidity 0.4.24;
 
 import "./BaseFeeManager.sol";
-import "../IBlockReward.sol";
+import "./BlockRewardBridge.sol";
 
-contract BlockRewardFeeManager is BaseFeeManager {
-
+contract BlockRewardFeeManager is BaseFeeManager, BlockRewardBridge {
     function distributeFeeFromAffirmation(uint256 _fee) external {
         distributeFeeFromBlockReward(_fee);
     }
@@ -13,9 +12,6 @@ contract BlockRewardFeeManager is BaseFeeManager {
         distributeFeeFromBlockReward(_fee);
     }
 
-    function _blockRewardContract() internal view returns(IBlockReward) {
-        return IBlockReward(addressStorage[keccak256(abi.encodePacked("blockRewardContract"))]);
-    }
-
+    /* solcov ignore next */
     function distributeFeeFromBlockReward(uint256 _fee) internal;
 }
